@@ -33,6 +33,13 @@ public class ServiceController {
         return serviceService.create(request.name(), request.description());
     }
 
+    @PatchMapping("/{id}/status")
+    public Service updateStatus(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateServiceStatusRequest request) {
+        return serviceService.updateStatus(id, request.status());
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
