@@ -32,4 +32,9 @@ public class ServiceService {
         );
         return repository.save(service);
     }
+
+    public void delete(UUID id) {
+        findById(id);
+        repository.deleteById(id);
+    }
 }

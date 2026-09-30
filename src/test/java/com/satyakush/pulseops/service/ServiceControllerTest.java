@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -48,6 +49,34 @@ class ServiceControllerTest {
     @Test
     void missingServiceReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/services/{id}", UUID.randomUUID()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)));
+    }
+
+    @Test
+    void deleteServiceReturnsNoContent() throws Exception {
+        String response = mockMvc.perform(post("/api/v1/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"orders-api","description":"Order processing API"}
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = response.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(delete("/api/v1/services/{id}", id))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/v1/services/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deletingMissingServiceReturnsNotFound() throws Exception {
+        mockMvc.perform(delete("/api/v1/services/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
     }
