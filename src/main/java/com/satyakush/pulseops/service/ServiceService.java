@@ -37,4 +37,10 @@ public class ServiceService {
         findById(id);
         repository.deleteById(id);
     }
+
+    public Service updateStatus(UUID id, ServiceStatus status) {
+        Service service = findById(id);
+        Service updated = new Service(service.id(), service.name(), service.description(), status);
+        return repository.save(updated);
+    }
 }
