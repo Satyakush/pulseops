@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,6 +52,27 @@ class ServiceControllerTest {
         mockMvc.perform(get("/api/v1/services/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
+    }
+
+    @Test
+    void updateServiceStatusReturnsUpdatedService() throws Exception {
+        String response = mockMvc.perform(post("/api/v1/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"alerts-api","description":"Alert delivery API"}
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String id = response.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(patch("/api/v1/services/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""{"status":"DEGRADED"}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("DEGRADED")));
     }
 
     @Test
