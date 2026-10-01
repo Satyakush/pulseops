@@ -7,9 +7,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("test")
 public class InMemoryServiceRepository implements ServiceRepository {
 
     private final ConcurrentMap<UUID, Service> services = new ConcurrentHashMap<>();
