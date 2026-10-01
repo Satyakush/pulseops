@@ -31,6 +31,11 @@ public class JpaServiceRepository implements ServiceRepository {
     }
 
     @Override
+    public boolean existsByNameIgnoreCase(String name) {
+        return repository.existsByNameIgnoreCase(name);
+    }
+
+    @Override
     public Service save(Service service) {
         return repository.save(ServiceEntity.fromDomain(service)).toDomain();
     }
