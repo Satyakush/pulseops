@@ -1,5 +1,6 @@
 package com.satyakush.pulseops.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,7 +16,15 @@ public class ServiceService {
     }
 
     public List<Service> findAll() {
-        return repository.findAll();
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing(Service::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Service> findAll(ServiceStatus status) {
+        return findAll().stream()
+                .filter(service -> service.status() == status)
+                .toList();
     }
 
     public Service findById(UUID id) {
