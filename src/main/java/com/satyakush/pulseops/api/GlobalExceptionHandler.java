@@ -1,6 +1,7 @@
 package com.satyakush.pulseops.api;
 
 import com.satyakush.pulseops.service.ServiceNotFoundException;
+import com.satyakush.pulseops.service.DuplicateServiceNameException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,17 @@ public class GlobalExceptionHandler {
                 java.time.OffsetDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(DuplicateServiceNameException.class)
+    public ApiError handleDuplicateService(DuplicateServiceNameException exception, HttpServletRequest request) {
+        return new ApiError(
+                java.time.OffsetDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
                 exception.getMessage(),
                 request.getRequestURI()
         );
