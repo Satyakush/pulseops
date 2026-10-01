@@ -55,7 +55,19 @@ class ServiceControllerTest {
     }
 
     @Test
-    void listServicesCanFilterByStatus() throws Exception {\n        mockMvc.perform(post("/api/v1/services")\n                        .contentType(MediaType.APPLICATION_JSON)\n                        .content("""{"name":"filtered-api","description":"Filter me"}"""))\n                .andExpect(status().isCreated());\n\n        mockMvc.perform(get("/api/v1/services").param("status", "DEGRADED"))\n                .andExpect(status().isOk())\n                .andExpect(jsonPath("$.length()", is(0)));\n    }\n\n    @Test\n    void blankNameReturnsBadRequest() throws Exception {
+    void listServicesCanFilterByStatus() throws Exception {
+        mockMvc.perform(post("/api/v1/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""{"name":"filtered-api","description":"Filter me"}"""))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/v1/services").param("status", "DEGRADED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(0)));
+    }
+
+    @Test
+    void blankNameReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/api/v1/services")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
