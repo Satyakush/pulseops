@@ -2,7 +2,7 @@
 
 PulseOps is a production-oriented operations platform built to demonstrate modern backend engineering with Java and Spring Boot.
 
-## Current Stack
+## Current TechStack
 - Java 21
 - Spring Boot
 - Maven
