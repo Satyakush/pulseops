@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("test")
+@Profile("!postgres")
 public class InMemoryServiceRepository implements ServiceRepository {
 
     private final ConcurrentMap<UUID, Service> services = new ConcurrentHashMap<>();
