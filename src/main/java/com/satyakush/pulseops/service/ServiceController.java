@@ -3,6 +3,8 @@ package com.satyakush.pulseops.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +20,8 @@ public class ServiceController {
     }
 
     @GetMapping
-    public List<Service> findAll() {
-        return serviceService.findAll();
+    public List<Service> findAll(@RequestParam(required = false) ServiceStatus status) {
+        return status == null ? serviceService.findAll() : serviceService.findAll(status);
     }
 
     @GetMapping("/{id}")
