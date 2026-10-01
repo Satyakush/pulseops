@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: postgres
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/pulseops}
     username: ${DB_USERNAME:pulseops}
