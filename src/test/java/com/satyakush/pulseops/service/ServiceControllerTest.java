@@ -67,6 +67,15 @@ class ServiceControllerTest {
     }
 
     @Test
+    void missingStatusReturnsBadRequest() throws Exception {
+        mockMvc.perform(patch("/api/v1/services/{id}/status", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("status: status is required")));
+    }
+
+    @Test
     void blankNameReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/api/v1/services")
                         .contentType(MediaType.APPLICATION_JSON)
