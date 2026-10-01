@@ -19,6 +19,29 @@ PulseOps is a production-oriented operations platform built to demonstrate moder
 9. Docker and CI/CD
 10. Production hardening
 
+## API
+
+### List services
+
+`GET /api/v1/services`
+
+Optional status filtering:
+
+`GET /api/v1/services?status=DEGRADED`
+
+Results are returned in case-insensitive name order.
+
+### Create a service
+
+`POST /api/v1/services`
+
+```json
+{
+  "name": "payments-api",
+  "description": "Payment processing API"
+}
+```
+
 ## Development
 Run the application with:
 
