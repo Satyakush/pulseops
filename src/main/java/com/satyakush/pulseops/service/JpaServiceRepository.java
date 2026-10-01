@@ -1,5 +1,6 @@
 package com.satyakush.pulseops.service;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Profile("postgres")
 public class JpaServiceRepository implements ServiceRepository {
 
     private final JpaServiceEntityRepository repository;
