@@ -24,9 +24,14 @@ public class ServiceService {
     }
 
     public Service create(String name, String description) {
+        String normalizedName = name.trim();
+        if (repository.existsByNameIgnoreCase(normalizedName)) {
+            throw new DuplicateServiceNameException(normalizedName);
+        }
+
         Service service = new Service(
                 UUID.randomUUID(),
-                name,
+                normalizedName,
                 description,
                 ServiceStatus.OPERATIONAL
         );
