@@ -27,6 +27,12 @@ public class InMemoryServiceRepository implements ServiceRepository {
     }
 
     @Override
+    public boolean existsByNameIgnoreCase(String name) {
+        return services.values().stream()
+                .anyMatch(service -> service.name().equalsIgnoreCase(name));
+    }
+
+    @Override
     public Service save(Service service) {
         services.put(service.id(), service);
         return service;
