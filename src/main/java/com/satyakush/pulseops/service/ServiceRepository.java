@@ -10,6 +10,8 @@ public interface ServiceRepository {
 
     Optional<Service> findById(UUID id);
 
+    boolean existsByNameIgnoreCase(String name);
+
     Service save(Service service);
 
     void deleteById(UUID id);
