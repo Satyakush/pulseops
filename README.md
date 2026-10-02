@@ -21,36 +21,35 @@ PulseOps is a production-oriented operations platform built to demonstrate moder
 
 ## API
 
-### List services
+### Services
+- GET /api/v1/services
+- GET /api/v1/services?status=DEGRADED
+- GET /api/v1/services/summary
+- POST /api/v1/services
+- PATCH /api/v1/services/{id}/status
+- DELETE /api/v1/services/{id}
 
-`GET /api/v1/services`
+Service listings use case-insensitive name ordering. The summary endpoint reports total, operational, degraded, and outage counts.
 
-Optional status filtering:
+### Incidents
+- GET /api/v1/incidents
+- GET /api/v1/incidents/{id}
+- POST /api/v1/incidents
 
-`GET /api/v1/services?status=DEGRADED`
+Create an incident with serviceId, title, severity, and an optional description. New incidents start in OPEN status and are returned newest-first.
 
-Results are returned in case-insensitive name order.
+Example request:
 
-### Service summary
+POST /api/v1/incidents
 
-`GET /api/v1/services/summary`
-
-Returns total services grouped by operational status.
-
-### Create a service
-
-`POST /api/v1/services`
-
-```json
 {
-  "name": "payments-api",
-  "description": "Payment processing API"
+  "serviceId": "00000000-0000-0000-0000-000000000001",
+  "title": "API latency",
+  "description": "Latency increased",
+  "severity": "HIGH"
 }
-```
 
 ## Development
 Run the application with:
 
-```bash
 ./mvnw spring-boot:run
-```
