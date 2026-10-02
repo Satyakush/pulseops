@@ -25,6 +25,11 @@ public class IncidentService {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));
     }
 
+    public Incident updateStatus(UUID id, IncidentStatus status) {
+        Incident incident = findById(id);
+        return repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
+    }
+
     public Incident create(CreateIncidentRequest request) {
         Incident incident = new Incident(
                 UUID.randomUUID(), request.serviceId(), request.title().trim(), request.description(),
