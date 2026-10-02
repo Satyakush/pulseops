@@ -30,6 +30,15 @@ public class IncidentService {
         return repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
     }
 
+    public IncidentStatusSummary getSummary() {
+        List<Incident> incidents = repository.findAll();
+        return new IncidentStatusSummary(incidents.size(), count(incidents, IncidentStatus.OPEN), count(incidents, IncidentStatus.INVESTIGATING), count(incidents, IncidentStatus.RESOLVED));
+    }
+
+    private long count(List<Incident> incidents, IncidentStatus status) {
+        return incidents.stream().filter(incident -> incident.status() == status).count();
+    }
+
     public Incident create(CreateIncidentRequest request) {
         Incident incident = new Incident(
                 UUID.randomUUID(), request.serviceId(), request.title().trim(), request.description(),
