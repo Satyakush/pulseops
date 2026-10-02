@@ -17,8 +17,8 @@ public class IncidentController {
     }
 
     @GetMapping
-    public List<Incident> findAll() {
-        return incidentService.findAll();
+    public List<Incident> findAll(@RequestParam(required = false) IncidentFilter filter) {
+        return incidentService.findAll(filter);
     }
 
     @PatchMapping("/{id}/status")
