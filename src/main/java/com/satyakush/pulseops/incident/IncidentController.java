@@ -26,6 +26,11 @@ public class IncidentController {
         return incidentService.updateStatus(id, request.status());
     }
 
+    @GetMapping("/summary")
+    public IncidentStatusSummary getSummary() {
+        return incidentService.getSummary();
+    }
+
     @GetMapping("/{id}")
     public Incident findById(@PathVariable UUID id) {
         return incidentService.findById(id);
