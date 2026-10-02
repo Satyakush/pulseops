@@ -37,6 +37,21 @@ class ServiceControllerTest {
     }
 
     @Test
+    void serviceSummaryCountsStatuses() throws Exception {
+        mockMvc.perform(post("/api/v1/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""{"name":"summary-api","description":"Summary"}"""))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/v1/services/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total", is(1)))
+                .andExpect(jsonPath("$.operational", is(1)))
+                .andExpect(jsonPath("$.degraded", is(0)))
+                .andExpect(jsonPath("$.outage", is(0)));
+    }
+
+    @Test
     void listServicesReturnsNamesInStableOrder() throws Exception {
         mockMvc.perform(post("/api/v1/services")
                         .contentType(MediaType.APPLICATION_JSON)
