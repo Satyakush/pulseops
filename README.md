@@ -31,6 +31,12 @@ Optional status filtering:
 
 Results are returned in case-insensitive name order.
 
+### Service summary
+
+`GET /api/v1/services/summary`
+
+Returns total services grouped by operational status.
+
 ### Create a service
 
 `POST /api/v1/services`
