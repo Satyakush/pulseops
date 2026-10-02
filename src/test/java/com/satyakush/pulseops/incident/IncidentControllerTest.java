@@ -39,6 +39,16 @@ class IncidentControllerTest {
     }
 
     @Test
+    void incidentSummaryCountsOpenIncidents() throws Exception {
+        mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON).content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Queue alert\",\"severity\":\"LOW\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/api/v1/incidents/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total", is(1)))
+                .andExpect(jsonPath("$.open", is(1)));
+    }
+
+    @Test
     void missingIncidentReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound())
