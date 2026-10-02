@@ -16,7 +16,11 @@ public class IncidentService {
     }
 
     public List<Incident> findAll() {
-        return repository.findAll().stream()
+        return findAll(null);
+    }
+
+    public List<Incident> findAll(IncidentFilter filter) {
+        return repository.findAll().stream().filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE ? incident.status() != IncidentStatus.RESOLVED : incident.status() == IncidentStatus.RESOLVED))
                 .sorted(Comparator.comparing(Incident::createdAt).reversed())
                 .toList();
     }
