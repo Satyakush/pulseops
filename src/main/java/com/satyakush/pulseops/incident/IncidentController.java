@@ -21,6 +21,11 @@ public class IncidentController {
         return incidentService.findAll();
     }
 
+    @PatchMapping("/{id}/status")
+    public Incident updateStatus(@PathVariable UUID id, @Valid @RequestBody UpdateIncidentStatusRequest request) {
+        return incidentService.updateStatus(id, request.status());
+    }
+
     @GetMapping("/{id}")
     public Incident findById(@PathVariable UUID id) {
         return incidentService.findById(id);
