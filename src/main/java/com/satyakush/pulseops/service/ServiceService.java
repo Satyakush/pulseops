@@ -27,6 +27,17 @@ public class ServiceService {
                 .toList();
     }
 
+    public ServiceSummary getSummary() {
+        List<Service> services = repository.findAll();
+
+        return new ServiceSummary(
+                services.size(),
+                services.stream().filter(service -> service.status() == ServiceStatus.OPERATIONAL).count(),
+                services.stream().filter(service -> service.status() == ServiceStatus.DEGRADED).count(),
+                services.stream().filter(service -> service.status() == ServiceStatus.OUTAGE).count()
+        );
+    }
+
     public Service findById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ServiceNotFoundException(id));
