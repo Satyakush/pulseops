@@ -24,6 +24,11 @@ public class ServiceController {
         return status == null ? serviceService.findAll() : serviceService.findAll(status);
     }
 
+    @GetMapping("/summary")
+    public ServiceSummary getSummary() {
+        return serviceService.getSummary();
+    }
+
     @GetMapping("/{id}")
     public Service findById(@PathVariable UUID id) {
         return serviceService.findById(id);
