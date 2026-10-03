@@ -1,0 +1,30 @@
+package com.satyakush.pulseops.security;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest
+@Import({SecurityConfig.class, PulseOpsUserDetailsService.class})
+class SecurityConfigTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void protectedApiRejectsAnonymousRequests() throws Exception {
+        mockMvc.perform(get("/api/v1/services"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void viewerCanReadServices() throws Exception {
+        mockMvc.perform(get("/api/v1/services").with(httpBasic("viewer", "viewer")))
+                .andExpect(status().isOk());
+    }
+}
