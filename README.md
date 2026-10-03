@@ -19,6 +19,23 @@ PulseOps is a production-oriented operations platform built to demonstrate moder
 9. Docker and CI/CD
 10. Production hardening
 
+
+## Security
+
+PulseOps uses stateless HTTP Basic security for its API.
+
+### Roles
+- VIEWER: read service and incident data.
+- OPERATOR: read data and create or update services and incidents.
+- ADMIN: operator capabilities plus service deletion.
+
+Development users:
+- viewer / viewer
+- operator / operator
+- admin / admin
+
+GET /api/v1/auth/me returns the authenticated username and role. Unauthenticated and forbidden API requests return JSON error responses.
+
 ## API
 
 ### Services
