@@ -17,8 +17,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/v1/services/**").hasAnyRole("VIEWER", "OPERATOR", "ADMIN")
-                        .requestMatchers("/api/v1/incidents/**").hasAnyRole("VIEWER", "OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/services/**")
+                        .hasAnyRole("VIEWER", "OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/incidents/**")
+                        .hasAnyRole("VIEWER", "OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/services/**")
+                        .hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/services/**")
+                        .hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/services/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/incidents/**")
+                        .hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/incidents/**")
+                        .hasAnyRole("OPERATOR", "ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(basic -> {});
         return http.build();
