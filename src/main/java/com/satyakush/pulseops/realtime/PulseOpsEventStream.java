@@ -1,6 +1,7 @@
 package com.satyakush.pulseops.realtime;
 
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PreDestroy;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -26,6 +27,13 @@ public class PulseOpsEventStream {
         emitter.onTimeout(() -> emitters.remove(emitter));
         emitter.onError(error -> emitters.remove(emitter));
         return emitter;
+    }
+
+    @PreDestroy
+    void shutdown() {
+        heartbeat.shutdownNow();
+        emitters.forEach(SseEmitter::complete);
+        emitters.clear();
     }
 
     public int subscriberCount() {
