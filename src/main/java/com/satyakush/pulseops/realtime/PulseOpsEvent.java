@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record PulseOpsEvent(
         UUID id,
-        String type,
+        PulseOpsEventType type,
         String resource,
         UUID resourceId,
         OffsetDateTime occurredAt
