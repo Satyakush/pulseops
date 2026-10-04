@@ -3,6 +3,10 @@ package com.satyakush.pulseops.service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.time.OffsetDateTime;
+
+import com.satyakush.pulseops.realtime.PulseOpsEvent;
+import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
 
 import org.springframework.stereotype.Service;
 
@@ -10,9 +14,11 @@ import org.springframework.stereotype.Service;
 public class ServiceService {
 
     private final ServiceRepository repository;
+    private final PulseOpsEventPublisher eventPublisher;
 
-    public ServiceService(ServiceRepository repository) {
+    public ServiceService(ServiceRepository repository, PulseOpsEventPublisher eventPublisher) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Service> findAll() {
@@ -55,17 +61,28 @@ public class ServiceService {
                 description,
                 ServiceStatus.OPERATIONAL
         );
-        return repository.save(service);
+        Service saved = repository.save(service);
+        publish("SERVICE_CREATED", saved.id());
+        return saved;
     }
 
     public void delete(UUID id) {
         findById(id);
         repository.deleteById(id);
+        publish("SERVICE_DELETED", id);
     }
 
     public Service updateStatus(UUID id, ServiceStatus status) {
         Service service = findById(id);
         Service updated = new Service(service.id(), service.name(), service.description(), status);
-        return repository.save(updated);
+        Service saved = repository.save(updated);
+        publish("SERVICE_STATUS_CHANGED", saved.id());
+        return saved;
+    }
+
+    private void publish(String type, UUID resourceId) {
+        eventPublisher.publish(new PulseOpsEvent(
+                UUID.randomUUID(), type, "service", resourceId, OffsetDateTime.now()
+        ));
     }
 }
