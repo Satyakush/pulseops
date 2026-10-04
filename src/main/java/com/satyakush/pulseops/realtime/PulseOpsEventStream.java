@@ -6,10 +6,18 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class PulseOpsEventStream {
     private final Set<SseEmitter> emitters = new CopyOnWriteArraySet<>();
+    private final ScheduledExecutorService heartbeat = Executors.newSingleThreadScheduledExecutor();
+
+    public PulseOpsEventStream() {
+        heartbeat.scheduleAtFixedRate(this::sendHeartbeat, 30, 30, TimeUnit.SECONDS);
+    }
 
     public SseEmitter subscribe() {
         SseEmitter emitter = new SseEmitter(0L);
@@ -22,6 +30,17 @@ public class PulseOpsEventStream {
 
     public int subscriberCount() {
         return emitters.size();
+    }
+
+    private void sendHeartbeat() {
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().name("HEARTBEAT").data("ok"));
+            } catch (IOException ex) {
+                emitter.completeWithError(ex);
+                emitters.remove(emitter);
+            }
+        }
     }
 
     public void broadcast(PulseOpsEvent event) {
