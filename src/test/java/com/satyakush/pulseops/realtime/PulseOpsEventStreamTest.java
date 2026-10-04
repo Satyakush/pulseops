@@ -20,6 +20,16 @@ class PulseOpsEventStreamTest {
     }
 
     @Test
+    void shutdownCompletesActiveStream() {
+        PulseOpsEventStream stream = new PulseOpsEventStream();
+        stream.subscribe();
+
+        stream.shutdown();
+
+        assertEquals(0, stream.subscriberCount());
+    }
+
+    @Test
     void failedEmitterIsRemovedDuringBroadcast() {
         PulseOpsEventStream stream = new PulseOpsEventStream();
         stream.subscribe();
