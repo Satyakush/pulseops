@@ -5,14 +5,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import com.satyakush.pulseops.realtime.PulseOpsEvent;
+import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class IncidentService {
     private final IncidentRepository repository;
+    private final PulseOpsEventPublisher eventPublisher;
 
-    public IncidentService(IncidentRepository repository) {
+    public IncidentService(IncidentRepository repository, PulseOpsEventPublisher eventPublisher) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<Incident> findAll() {
@@ -31,7 +36,9 @@ public class IncidentService {
 
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
-        return repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
+        Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
+        publish("INCIDENT_STATUS_CHANGED", updated.id());
+        return updated;
     }
 
     public IncidentStatusSummary getSummary() {
@@ -48,6 +55,14 @@ public class IncidentService {
                 UUID.randomUUID(), request.serviceId(), request.title().trim(), request.description(),
                 request.severity(), IncidentStatus.OPEN, OffsetDateTime.now()
         );
-        return repository.save(incident);
+        Incident saved = repository.save(incident);
+        publish("INCIDENT_CREATED", saved.id());
+        return saved;
+    }
+
+    private void publish(String type, UUID resourceId) {
+        eventPublisher.publish(new PulseOpsEvent(
+                UUID.randomUUID(), type, "incident", resourceId, OffsetDateTime.now()
+        ));
     }
 }
