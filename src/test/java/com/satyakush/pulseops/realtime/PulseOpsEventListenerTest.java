@@ -13,7 +13,7 @@ class PulseOpsEventListenerTest {
     void forwardsApplicationEventToStream() {
         PulseOpsEventStream stream = mock(PulseOpsEventStream.class);
         PulseOpsEventListener listener = new PulseOpsEventListener(stream);
-        PulseOpsEvent event = new PulseOpsEvent(UUID.randomUUID(), "INCIDENT_CREATED", "incident", UUID.randomUUID(), OffsetDateTime.now());
+        PulseOpsEvent event = new PulseOpsEvent(UUID.randomUUID(), PulseOpsEventType.INCIDENT_CREATED, "incident", UUID.randomUUID(), OffsetDateTime.now());
 
         listener.onEvent(event);
 
