@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.satyakush.pulseops.realtime.PulseOpsEvent;
 import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
+import com.satyakush.pulseops.realtime.PulseOpsEventType;
 
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class IncidentService {
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
         Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
-        publish("INCIDENT_STATUS_CHANGED", updated.id());
+        publish(PulseOpsEventType.INCIDENT_STATUS_CHANGED, updated.id());
         return updated;
     }
 
@@ -56,11 +57,11 @@ public class IncidentService {
                 request.severity(), IncidentStatus.OPEN, OffsetDateTime.now()
         );
         Incident saved = repository.save(incident);
-        publish("INCIDENT_CREATED", saved.id());
+        publish(PulseOpsEventType.INCIDENT_CREATED, saved.id());
         return saved;
     }
 
-    private void publish(String type, UUID resourceId) {
+    private void publish(PulseOpsEventType type, UUID resourceId) {
         eventPublisher.publish(new PulseOpsEvent(
                 UUID.randomUUID(), type, "incident", resourceId, OffsetDateTime.now()
         ));
