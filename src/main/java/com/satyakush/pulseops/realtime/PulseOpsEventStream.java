@@ -20,6 +20,10 @@ public class PulseOpsEventStream {
         return emitter;
     }
 
+    public int subscriberCount() {
+        return emitters.size();
+    }
+
     public void broadcast(PulseOpsEvent event) {
         for (SseEmitter emitter : emitters) {
             try {
