@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 
 import com.satyakush.pulseops.realtime.PulseOpsEvent;
 import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
+import com.satyakush.pulseops.realtime.PulseOpsEventType;
 
 import org.springframework.stereotype.Service;
 
@@ -62,25 +63,25 @@ public class ServiceService {
                 ServiceStatus.OPERATIONAL
         );
         Service saved = repository.save(service);
-        publish("SERVICE_CREATED", saved.id());
+        publish(PulseOpsEventType.SERVICE_CREATED, saved.id());
         return saved;
     }
 
     public void delete(UUID id) {
         findById(id);
         repository.deleteById(id);
-        publish("SERVICE_DELETED", id);
+        publish(PulseOpsEventType.SERVICE_DELETED, id);
     }
 
     public Service updateStatus(UUID id, ServiceStatus status) {
         Service service = findById(id);
         Service updated = new Service(service.id(), service.name(), service.description(), status);
         Service saved = repository.save(updated);
-        publish("SERVICE_STATUS_CHANGED", saved.id());
+        publish(PulseOpsEventType.SERVICE_STATUS_CHANGED, saved.id());
         return saved;
     }
 
-    private void publish(String type, UUID resourceId) {
+    private void publish(PulseOpsEventType type, UUID resourceId) {
         eventPublisher.publish(new PulseOpsEvent(
                 UUID.randomUUID(), type, "service", resourceId, OffsetDateTime.now()
         ));
