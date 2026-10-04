@@ -14,7 +14,7 @@ class PulseOpsEventPublisherTest {
     void publishesOperationsEvent() {
         ApplicationEventPublisher applicationPublisher = mock(ApplicationEventPublisher.class);
         PulseOpsEventPublisher publisher = new PulseOpsEventPublisher(applicationPublisher);
-        PulseOpsEvent event = new PulseOpsEvent(UUID.randomUUID(), "SERVICE_CREATED", "service", UUID.randomUUID(), OffsetDateTime.now());
+        PulseOpsEvent event = new PulseOpsEvent(UUID.randomUUID(), PulseOpsEventType.SERVICE_CREATED, "service", UUID.randomUUID(), OffsetDateTime.now());
 
         publisher.publish(event);
 
