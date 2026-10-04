@@ -1,21 +1,12 @@
-spring:
-  datasource:
-    url: jdbc:h2:mem:pulseops;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-  jpa:
-    open-in-view: false
-
-pulseops:
-  security:
-    users:
-      - username: viewer
-        password: "{noop}viewer"
-        role: VIEWER
-      - username: operator
-        password: "{noop}operator"
-        role: OPERATOR
-      - username: admin
-        password: "{noop}admin"
-        role: ADMIN
+[object Object]
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
