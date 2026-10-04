@@ -6,26 +6,24 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
 public class PulseOpsUserDetailsService implements UserDetailsService {
-    private final Map<String, PulseOpsUser> users = Map.of(
-            "viewer", new PulseOpsUser("viewer", "{noop}viewer", PulseOpsRole.VIEWER),
-            "operator", new PulseOpsUser("operator", "{noop}operator", PulseOpsRole.OPERATOR),
-            "admin", new PulseOpsUser("admin", "{noop}admin", PulseOpsRole.ADMIN)
-    );
+    private final PulseOpsSecurityProperties properties;
+
+    public PulseOpsUserDetailsService(PulseOpsSecurityProperties properties) {
+        this.properties = properties;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        PulseOpsUser user = users.get(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("Unknown PulseOps user: " + username);
-        }
+        PulseOpsSecurityProperties.User user = properties.getUsers().stream()
+                .filter(candidate -> candidate.getUsername().equals(username))
+                .findFirst()
+                .orElseThrow(() -> new UsernameNotFoundException("Unknown PulseOps user: " + username));
 
-        return User.withUsername(user.username())
-                .password(user.password())
-                .roles(user.role().name())
+        return User.withUsername(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
                 .build();
     }
 }
