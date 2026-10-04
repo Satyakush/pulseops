@@ -2,11 +2,14 @@ package com.satyakush.pulseops.security;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserDetailsServiceTest {
-    private final PulseOpsUserDetailsService service = new PulseOpsUserDetailsService();
+    private final PulseOpsSecurityProperties properties = configuredProperties();
+    private final PulseOpsUserDetailsService service = new PulseOpsUserDetailsService(properties);
 
     @Test
     void knownUserLoadsExpectedRole() {
@@ -19,5 +22,15 @@ class UserDetailsServiceTest {
     void unknownUserIsRejected() {
         assertThrows(org.springframework.security.core.userdetails.UsernameNotFoundException.class,
                 () -> service.loadUserByUsername("missing"));
+    }
+
+    private static PulseOpsSecurityProperties configuredProperties() {
+        var properties = new PulseOpsSecurityProperties();
+        var operator = new PulseOpsSecurityProperties.User();
+        operator.setUsername("operator");
+        operator.setPassword("{noop}operator");
+        operator.setRole(PulseOpsRole.OPERATOR);
+        properties.setUsers(List.of(operator));
+        return properties;
     }
 }
