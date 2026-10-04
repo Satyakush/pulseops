@@ -81,7 +81,7 @@ PulseOps now exposes a server-sent events stream for live operational changes:
 - Events are published through Spring application events, keeping domain services decoupled from the transport layer.
 - The stream tracks active subscribers and removes completed or failed connections.
 
-The current event payload includes an event id, event type, resource type, resource id, and occurrence timestamp. This provides a foundation for a future operations dashboard without coupling the backend to a specific frontend implementation.
+The current event payload includes an event id, event type, resource type, resource id, and occurrence timestamp. Event types are represented by a dedicated enum to keep producers and consumers aligned; a heartbeat is also emitted every 30 seconds while subscribers are connected. This provides a foundation for a future operations dashboard without coupling the backend to a specific frontend implementation.
 
 ## Observability
 
