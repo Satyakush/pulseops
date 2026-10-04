@@ -70,3 +70,25 @@ POST /api/v1/incidents
 Run the application with:
 
 ./mvnw spring-boot:run
+
+## Real-time operations events
+
+PulseOps now exposes a server-sent events stream for live operational changes:
+
+- `GET /api/v1/events` — subscribes to a `text/event-stream` feed.
+- Service creation, deletion, and status changes emit typed events.
+- Incident creation and status changes emit typed events.
+- Events are published through Spring application events, keeping domain services decoupled from the transport layer.
+- The stream tracks active subscribers and removes completed or failed connections.
+
+The current event payload includes an event id, event type, resource type, resource id, and occurrence timestamp. This provides a foundation for a future operations dashboard without coupling the backend to a specific frontend implementation.
+
+## Observability
+
+Actuator endpoints are exposed for operational monitoring:
+
+- `/actuator/health`
+- `/actuator/info`
+- `/actuator/metrics`
+
+Health remains publicly readable for platform probes, while the application API remains protected by the existing RBAC policy.
