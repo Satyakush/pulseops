@@ -6,3 +6,16 @@ spring:
     driver-class-name: org.h2.Driver
   jpa:
     open-in-view: false
+
+pulseops:
+  security:
+    users:
+      - username: viewer
+        password: "{noop}viewer"
+        role: VIEWER
+      - username: operator
+        password: "{noop}operator"
+        role: OPERATOR
+      - username: admin
+        password: "{noop}admin"
+        role: ADMIN
