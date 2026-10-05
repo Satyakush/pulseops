@@ -92,3 +92,15 @@ Actuator endpoints are exposed for operational monitoring:
 - `/actuator/metrics`
 
 Health remains publicly readable for platform probes, while the application API remains protected by the existing RBAC policy.
+
+## Redis caching
+
+PulseOps includes an opt-in Redis cache layer for high-frequency service and incident reads.
+
+- Service lists, status-filtered lists, and summaries are cacheable.
+- Incident lists, filtered lists, and summaries are cacheable.
+- Service and incident mutations evict the corresponding cache entries.
+- Cached values use JSON serialization with a 60-second default TTL.
+- Redis caching is disabled by default for local development; enable `pulseops.cache.redis.enabled` when Redis is available.
+- `/api/v1/cache/metrics` exposes cache invalidation counters.
+- The cache health indicator contributes cache invalidation details to Actuator health.
