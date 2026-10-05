@@ -2,6 +2,7 @@ package com.satyakush.pulseops.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import java.time.Duration;
 
 @Configuration
 @ConditionalOnBean(RedisConnectionFactory.class)
+@ConditionalOnProperty(name = "pulseops.cache.redis.enabled", havingValue = "true")
 public class RedisCacheConfig implements CachingConfigurer {
     @Bean
     CacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
