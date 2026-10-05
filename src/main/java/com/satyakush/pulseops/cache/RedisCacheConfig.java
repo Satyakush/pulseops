@@ -20,12 +20,12 @@ import java.time.Duration;
 @ConditionalOnProperty(name = "pulseops.cache.redis.enabled", havingValue = "true")
 public class RedisCacheConfig implements CachingConfigurer {
     @Bean
-    CacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+    CacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper, PulseOpsCacheProperties properties) {
         GenericJackson2JsonRedisSerializer serializer =
                 new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration defaults = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofSeconds(60))
+                .entryTtl(properties.getTtl())
                 .disableCachingNullValues()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
