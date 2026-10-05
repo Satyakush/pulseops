@@ -56,6 +56,7 @@ public class ServiceService {
                 .orElseThrow(() -> new ServiceNotFoundException(id));
     }
 
+    @CacheEvict(value = PulseOpsCacheNames.SERVICES, allEntries = true)
     public Service create(String name, String description) {
         String normalizedName = name.trim();
         if (repository.existsByNameIgnoreCase(normalizedName)) {
@@ -73,12 +74,14 @@ public class ServiceService {
         return saved;
     }
 
+    @CacheEvict(value = PulseOpsCacheNames.SERVICES, allEntries = true)
     public void delete(UUID id) {
         findById(id);
         repository.deleteById(id);
         publish(PulseOpsEventType.SERVICE_DELETED, id);
     }
 
+    @CacheEvict(value = PulseOpsCacheNames.SERVICES, allEntries = true)
     public Service updateStatus(UUID id, ServiceStatus status) {
         Service service = findById(id);
         Service updated = new Service(service.id(), service.name(), service.description(), status);
