@@ -31,3 +31,8 @@ management:
   info:
     env:
       enabled: true
+
+pulseops:
+  cache:
+    redis:
+      enabled: false
