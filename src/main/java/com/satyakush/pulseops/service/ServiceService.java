@@ -51,6 +51,7 @@ public class ServiceService {
         );
     }
 
+    @Cacheable(value = PulseOpsCacheNames.SERVICES, key = "'id:' + #id")
     public Service findById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ServiceNotFoundException(id));
