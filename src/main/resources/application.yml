@@ -1,4 +1,25 @@
-[object Object]
+spring:
+  datasource:
+    url: jdbc:h2:mem:pulseops;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+
+pulseops:
+  security:
+    users:
+      - username: viewer
+        password: ${PULSEOPS_VIEWER_PASSWORD}
+        role: VIEWER
+      - username: operator
+        password: ${PULSEOPS_OPERATOR_PASSWORD}
+        role: OPERATOR
+      - username: admin
+        password: ${PULSEOPS_ADMIN_PASSWORD}
+        role: ADMIN
+
 management:
   endpoints:
     web:
