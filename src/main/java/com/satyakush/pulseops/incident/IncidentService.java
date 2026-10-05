@@ -10,6 +10,9 @@ import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
 import com.satyakush.pulseops.realtime.PulseOpsEventType;
 
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import com.satyakush.pulseops.cache.PulseOpsCacheNames;
 
 @Service
 public class IncidentService {
@@ -21,10 +24,12 @@ public class IncidentService {
         this.eventPublisher = eventPublisher;
     }
 
+    @Cacheable(PulseOpsCacheNames.INCIDENTS)
     public List<Incident> findAll() {
         return findAll(null);
     }
 
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'filter:' + #filter")
     public List<Incident> findAll(IncidentFilter filter) {
         return repository.findAll().stream().filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE ? incident.status() != IncidentStatus.RESOLVED : incident.status() == IncidentStatus.RESOLVED))
                 .sorted(Comparator.comparing(Incident::createdAt).reversed())
@@ -42,6 +47,7 @@ public class IncidentService {
         return updated;
     }
 
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'summary'")
     public IncidentStatusSummary getSummary() {
         List<Incident> incidents = repository.findAll();
         return new IncidentStatusSummary(incidents.size(), count(incidents, IncidentStatus.OPEN), count(incidents, IncidentStatus.INVESTIGATING), count(incidents, IncidentStatus.RESOLVED));
