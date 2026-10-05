@@ -40,6 +40,7 @@ public class IncidentService {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));
     }
 
+    @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
         Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
@@ -57,6 +58,7 @@ public class IncidentService {
         return incidents.stream().filter(incident -> incident.status() == status).count();
     }
 
+    @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident create(CreateIncidentRequest request) {
         Incident incident = new Incident(
                 UUID.randomUUID(), request.serviceId(), request.title().trim(), request.description(),
