@@ -36,6 +36,7 @@ public class IncidentService {
                 .toList();
     }
 
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'id:' + #id")
     public Incident findById(UUID id) {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));
     }
