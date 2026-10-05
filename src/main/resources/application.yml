@@ -36,3 +36,4 @@ pulseops:
   cache:
     redis:
       enabled: false
+    ttl: 60s
