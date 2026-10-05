@@ -10,6 +10,9 @@ import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
 import com.satyakush.pulseops.realtime.PulseOpsEventType;
 
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import com.satyakush.pulseops.cache.PulseOpsCacheNames;
 
 @Service
 public class ServiceService {
@@ -22,18 +25,21 @@ public class ServiceService {
         this.eventPublisher = eventPublisher;
     }
 
+    @Cacheable(PulseOpsCacheNames.SERVICES)
     public List<Service> findAll() {
         return repository.findAll().stream()
                 .sorted(Comparator.comparing(Service::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
+    @Cacheable(value = PulseOpsCacheNames.SERVICES, key = "'status:' + #status")
     public List<Service> findAll(ServiceStatus status) {
         return findAll().stream()
                 .filter(service -> service.status() == status)
                 .toList();
     }
 
+    @Cacheable(value = PulseOpsCacheNames.SERVICES, key = "'summary'")
     public ServiceSummary getSummary() {
         List<Service> services = repository.findAll();
 
