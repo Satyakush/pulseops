@@ -19,6 +19,10 @@ pulseops:
       - username: admin
         password: ${PULSEOPS_ADMIN_PASSWORD}
         role: ADMIN
+  cache:
+    redis:
+      enabled: false
+    ttl: 60s
 
 management:
   endpoints:
@@ -31,9 +35,3 @@ management:
   info:
     env:
       enabled: true
-
-pulseops:
-  cache:
-    redis:
-      enabled: false
-    ttl: 60s
