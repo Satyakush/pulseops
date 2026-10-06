@@ -1,0 +1,19 @@
+pulseops:
+  security:
+    users:
+      - username: viewer
+        password: viewer
+        role: VIEWER
+      - username: operator
+        password: operator
+        role: OPERATOR
+      - username: admin
+        password: admin
+        role: ADMIN
+  cache:
+    redis:
+      enabled: false
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:pulseops-test;DB_CLOSE_DELAY=-1
