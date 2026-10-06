@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+pulseops:
+  cache:
+    redis:
+      enabled: false
+
+management:
+  endpoint:
+    health:
+      show-details: always
