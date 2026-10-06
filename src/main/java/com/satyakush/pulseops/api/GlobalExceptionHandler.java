@@ -13,24 +13,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceNotFoundException.class)
     public ApiError handleServiceNotFound(ServiceNotFoundException exception, HttpServletRequest request) {
-        return new ApiError(
-                java.time.OffsetDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                exception.getMessage(),
-                request.getRequestURI()
-        );
+        return error(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
     @ExceptionHandler(DuplicateServiceNameException.class)
     public ApiError handleDuplicateService(DuplicateServiceNameException exception, HttpServletRequest request) {
-        return new ApiError(
-                java.time.OffsetDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                exception.getMessage(),
-                request.getRequestURI()
-        );
+        return error(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -42,23 +30,23 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .orElse("Request validation failed");
 
-        return new ApiError(
-                java.time.OffsetDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                message,
-                request.getRequestURI()
-        );
+        return error(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(Exception.class)
     public ApiError handleUnexpectedException(Exception exception, HttpServletRequest request) {
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request);
+    }
+
+    private ApiError error(HttpStatus status, String message, HttpServletRequest request) {
+        Object requestId = request.getAttribute(RequestIdFilter.ATTRIBUTE);
         return new ApiError(
                 java.time.OffsetDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                exception.getMessage(),
-                request.getRequestURI()
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                request.getRequestURI(),
+                requestId == null ? null : requestId.toString()
         );
     }
 }
