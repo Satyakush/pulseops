@@ -2,6 +2,7 @@ package com.satyakush.pulseops.api;
 
 import com.satyakush.pulseops.service.ServiceNotFoundException;
 import com.satyakush.pulseops.service.DuplicateServiceNameException;
+import com.satyakush.pulseops.auth.InvalidCredentialsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,7 +17,9 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
-    @ExceptionHandler(DuplicateServiceNameException.class)
+    @ExceptionHandler(InvalidCredentialsException.class)
+      public ApiError handleInvalidCredentials(InvalidCredentialsException exception, HttpServletRequest request) { return error(exception, request, HttpStatus.UNAUTHORIZED); }
+      @ExceptionHandler(DuplicateServiceNameException.class)
     public ApiError handleDuplicateService(DuplicateServiceNameException exception, HttpServletRequest request) {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
