@@ -9,7 +9,14 @@ public class LoginService {
     private final PasswordHasher passwords;
     private final TokenService tokens;
     private final AuthSessionRepository sessions;
-    public LoginService(UserRepository users, PasswordHasher passwords, TokenService tokens, AuthSessionRepository sessions) { this.users = users; this.passwords = passwords; this.tokens = tokens; this.sessions = sessions; }
+
+    public LoginService(UserRepository users, PasswordHasher passwords, TokenService tokens, AuthSessionRepository sessions) {
+        this.users = users;
+        this.passwords = passwords;
+        this.tokens = tokens;
+        this.sessions = sessions;
+    }
+
     public AuthResponse login(LoginRequest request) {
         User user = users.findByUsernameIgnoreCase(request.username().trim()).orElseThrow(InvalidCredentialsException::new);
         if (!user.active() || !passwords.matches(request.password(), user.passwordHash())) throw new InvalidCredentialsException();
