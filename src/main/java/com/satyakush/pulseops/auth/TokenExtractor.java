@@ -4,4 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TokenExtractor { public String extract(HttpServletRequest request){String header=request.getHeader("Authorization"); if(header==null||!header.startsWith("Bearer ")) return null; String token=header.substring(7).trim(); return token.isEmpty()?null:token;} }
+public class TokenExtractor {
+    private static final String PREFIX = "Bearer ";
+    public String extract(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith(PREFIX)) return null;
+        String token = header.substring(PREFIX.length()).trim();
+        return token.isEmpty() ? null : token;
+    }
+}
