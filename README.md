@@ -22,19 +22,21 @@ PulseOps is a production-oriented operations platform built to demonstrate moder
 
 ## Security
 
-PulseOps uses stateless HTTP Basic security for its API.
+PulseOps uses stateless bearer-token authentication with an eight-hour session expiry.
+
+### Authentication
+- `POST /api/v1/auth/register` creates a `VIEWER` account; registration never returns a password hash.
+- `POST /api/v1/auth/login` validates credentials and returns an opaque bearer token.
+- `GET /api/v1/auth/me` returns the authenticated username and role.
+- `POST /api/v1/auth/logout` revokes the current in-memory session.
+- Send protected requests with `Authorization: Bearer <token>`.
 
 ### Roles
 - VIEWER: read service and incident data.
-- OPERATOR: read data and create or update services and incidents.
+- OPERATOR: read and write service and incident data.
 - ADMIN: operator capabilities plus service deletion.
 
-Development users:
-- viewer / viewer
-- operator / operator
-- admin / admin
-
-GET /api/v1/auth/me returns the authenticated username and role. Unauthenticated and forbidden API requests return JSON error responses.
+Registration and login are public; operational API routes require the relevant permission. The development user and session repositories are in-memory and are **not suitable for production** because data is lost on restart. See [docs/security-model.md](docs/security-model.md) and [docs/authentication-rollout.md](docs/authentication-rollout.md) for limitations and production hardening.
 
 ## API
 
