@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-      public ApiError handleInvalidCredentials(InvalidCredentialsException exception, HttpServletRequest request) { return error(exception, request, HttpStatus.UNAUTHORIZED); }
+      public ApiError handleInvalidCredentials(InvalidCredentialsException exception, HttpServletRequest request) { return error(HttpStatus.UNAUTHORIZED, "Invalid username or password", request); }
       @ExceptionHandler({DuplicateServiceNameException.class, DuplicateUsernameException.class})
     public ApiError handleDuplicateService(RuntimeException exception, HttpServletRequest request) {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request);
