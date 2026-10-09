@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/services/**").hasAuthority("SERVICE_READ")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/services/**").hasAuthority("SERVICE_WRITE")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/services/**").hasAuthority("SERVICE_WRITE")
-                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/services/**").hasAuthority("SERVICE_WRITE")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/services/**").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/incidents/**").hasAuthority("INCIDENT_READ")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/incidents/**").hasAuthority("INCIDENT_WRITE")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/incidents/**").hasAuthority("INCIDENT_WRITE")
