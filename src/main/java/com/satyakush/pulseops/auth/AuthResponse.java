@@ -2,4 +2,5 @@ package com.satyakush.pulseops.auth;
 
 import java.time.OffsetDateTime;
 
-public record AuthResponse(String token,OffsetDateTime expiresAt,String username,AuthRole role) { }
+/** Safe login response; never includes password material. */
+public record AuthResponse(String token, OffsetDateTime expiresAt, String username, AuthRole role) { }
