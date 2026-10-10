@@ -2,13 +2,13 @@ pulseops:
   security:
     users:
       - username: viewer
-        password: viewer
+        password: '{noop}viewer'
         role: VIEWER
       - username: operator
-        password: operator
+        password: '{noop}operator'
         role: OPERATOR
       - username: admin
-        password: admin
+        password: '{noop}admin'
         role: ADMIN
   cache:
     redis:
