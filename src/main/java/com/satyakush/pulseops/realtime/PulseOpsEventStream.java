@@ -3,7 +3,6 @@ package com.satyakush.pulseops.realtime;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PreDestroy;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -36,9 +35,7 @@ public class PulseOpsEventStream {
         emitters.clear();
     }
 
-    public int subscriberCount() {
-        return emitters.size();
-    }
+    public int subscriberCount() { return emitters.size(); }
 
     private void sendHeartbeat() {
         for (SseEmitter emitter : emitters) {
@@ -54,10 +51,8 @@ public class PulseOpsEventStream {
     public void broadcast(PulseOpsEvent event) {
         for (SseEmitter emitter : emitters) {
             try {
-                emitter.send(SseEmitter.event()
-                        .name(event.type())
-                        .id(event.id().toString())
-                        .data(event));
+                emitter.send(SseEmitter.event().name(event.type().name())
+                        .id(event.id().toString()).data(event));
             } catch (IOException ex) {
                 emitter.completeWithError(ex);
                 emitters.remove(emitter);
