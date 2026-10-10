@@ -1,6 +1,11 @@
 package com.satyakush.pulseops.security;
 
 import org.junit.jupiter.api.Test;
+import com.satyakush.pulseops.service.ServiceController;
+import com.satyakush.pulseops.service.ServiceService;
+import com.satyakush.pulseops.service.InMemoryServiceRepository;
+import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -11,8 +16,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
-@Import({SecurityConfig.class, PulseOpsUserDetailsService.class, JsonAuthenticationEntryPoint.class, JsonAccessDeniedHandler.class})
+@WebMvcTest(ServiceController.class)
+@Import({SecurityConfig.class, PulseOpsUserDetailsService.class, JsonAuthenticationEntryPoint.class, JsonAccessDeniedHandler.class, ServiceService.class, InMemoryServiceRepository.class, PulseOpsEventPublisher.class})
 class WriteAuthorizationTest {
     @Autowired
     private MockMvc mockMvc;
