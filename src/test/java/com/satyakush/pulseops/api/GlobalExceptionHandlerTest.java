@@ -34,10 +34,11 @@ class GlobalExceptionHandlerTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         org.mockito.Mockito.when(request.getRequestURI()).thenReturn("/api/v1/health");
 
-        ApiError error = handler.handleUnexpectedException(
+        ResponseEntity<ApiError> response = handler.handleUnexpectedException(
                 new IllegalStateException("boom"), request);
+        ApiError error = response.getBody();
 
-        assertEquals(500, error.status());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals(null, error.requestId());
     }
 }
