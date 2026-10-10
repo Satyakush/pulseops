@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("legacy-basic-auth")
 @WebMvcTest(ServiceController.class)
 @Import({SecurityConfig.class, PulseOpsUserDetailsService.class, JsonAuthenticationEntryPoint.class, JsonAccessDeniedHandler.class, ServiceService.class, InMemoryServiceRepository.class, PulseOpsEventPublisher.class})
 class SecurityConfigTest {
