@@ -1,5 +1,6 @@
 package com.satyakush.pulseops.security;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile("legacy-basic-auth")
 public class PulseOpsUserDetailsService implements UserDetailsService {
     private final PulseOpsSecurityProperties properties;
 
