@@ -3,6 +3,7 @@ package com.satyakush.pulseops.api;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,8 +19,10 @@ class GlobalExceptionHandlerTest {
         request.setRequestURI("/api/v1/services");
         request.setAttribute(RequestIdFilter.ATTRIBUTE, "req-500");
 
-        ApiError error = handler.handleUnexpectedException(
+        ResponseEntity<ApiError> response = handler.handleUnexpectedException(
                 new IllegalStateException("boom"), request);
+        ApiError error = response.getBody();
+        assertEquals(500, response.getStatusCode().value());
 
         assertEquals(500, error.status());
         assertEquals("req-500", error.requestId());
