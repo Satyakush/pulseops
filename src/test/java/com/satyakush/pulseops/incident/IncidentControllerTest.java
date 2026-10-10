@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(IncidentController.class)
-@Import({GlobalExceptionHandler.class, IncidentService.class, InMemoryIncidentRepository.class})
+@Import({GlobalExceptionHandler.class, IncidentService.class, InMemoryIncidentRepository.class, com.satyakush.pulseops.realtime.PulseOpsEventPublisher.class})
 class IncidentControllerTest {
     @Autowired MockMvc mockMvc;
 
