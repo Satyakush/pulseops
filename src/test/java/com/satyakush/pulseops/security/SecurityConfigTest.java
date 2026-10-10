@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@Import({SecurityConfig.class, PulseOpsUserDetailsService.class})
+@Import({SecurityConfig.class, PulseOpsUserDetailsService.class, JsonAuthenticationEntryPoint.class, JsonAccessDeniedHandler.class})
 class SecurityConfigTest {
     @Autowired
     private MockMvc mockMvc;
