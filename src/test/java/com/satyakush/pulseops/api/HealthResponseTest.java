@@ -16,4 +16,11 @@ class HealthResponseTest {
         assertEquals("pulseops", response.service());
         assertEquals("req-7", response.requestId());
     }
+
+    @Test
+    void healthResponseIncludesObservationTime() {
+        OffsetDateTime timestamp = OffsetDateTime.now();
+        HealthResponse response = new HealthResponse("UP", "pulseops", timestamp, null);
+        assertEquals(timestamp, response.timestamp());
+    }
 }
