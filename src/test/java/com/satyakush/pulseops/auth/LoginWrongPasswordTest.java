@@ -21,4 +21,6 @@ class LoginWrongPasswordTest {
         assertThrows(InvalidCredentialsException.class, () -> login.login(new LoginRequest("operator1", "wrong-pass")));
         assertEquals(0, saves.get());
     }
+
+    @Test void blankPasswordDoesNotCreateSession() { var users = new InMemoryUserRepository(); var passwords = new BCryptPasswordHasher(); new RegistrationService(users, passwords).register(new RegisterRequest("operator2", "correct-pass")); var saves = new AtomicInteger(); AuthSessionRepository sessions = new AuthSessionRepository() { public AuthSession save(AuthSession s) { saves.incrementAndGet(); return s; } public Optional<AuthSession> findByToken(String t) { return Optional.empty(); } public void deleteByToken(String t) {} }; var login = new LoginService(users, passwords, new TokenService(), sessions); assertThrows(InvalidCredentialsException.class, () -> login.login(new LoginRequest("operator2", ""))); assertEquals(0, saves.get()); }
 }
