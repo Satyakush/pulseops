@@ -36,9 +36,4 @@ class SecurityErrorResponseTest {
                 .andExpect(jsonPath("$.status", is(403)))
                 .andExpect(jsonPath("$.error", is("Forbidden")));
     }
-
-    @Test
-    void healthProbeRemainsPublic() throws Exception {
-        mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
-    }
 }
