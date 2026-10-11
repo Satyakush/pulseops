@@ -15,4 +15,6 @@ class AuthSessionValidationTest {
         var session = new AuthSession(UUID.randomUUID(), UUID.randomUUID(), "token", OffsetDateTime.now());
         assertTrue(session.expired());
     }
+
+    @Test void rejectsNullToken() { assertThrows(IllegalArgumentException.class, () -> new AuthSession(UUID.randomUUID(), UUID.randomUUID(), null, OffsetDateTime.now().plusMinutes(5))); }
 }
