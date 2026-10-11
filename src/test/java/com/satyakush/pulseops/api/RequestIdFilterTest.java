@@ -38,4 +38,22 @@ class RequestIdFilterTest {
         assertEquals(response.getHeader(RequestIdFilter.HEADER),
                 request.getAttribute(RequestIdFilter.ATTRIBUTE));
     }
+
+    @Test
+    void generatedRequestIdIsNonBlank() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, mock(FilterChain.class));
+        org.junit.jupiter.api.Assertions.assertFalse(response.getHeader(RequestIdFilter.HEADER).isBlank());
+    }
+
+    @Test
+    void blankClientRequestIdIsReplaced() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "   ");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, mock(FilterChain.class));
+        org.junit.jupiter.api.Assertions.assertNotNull(response.getHeader(RequestIdFilter.HEADER));
+        org.junit.jupiter.api.Assertions.assertFalse(response.getHeader(RequestIdFilter.HEADER).isBlank());
+    }
 }

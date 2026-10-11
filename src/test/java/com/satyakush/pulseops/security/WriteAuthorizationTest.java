@@ -37,4 +37,6 @@ class WriteAuthorizationTest {
                         .with(httpBasic("operator", "operator")))
                 .andExpect(status().isForbidden());
     }
+
+    @Test void anonymousUserCannotCreateService() throws Exception { mockMvc.perform(post("/api/v1/services").contentType("application/json").content("{\"name\":\"anonymous-api\"}")).andExpect(status().isForbidden()); }
 }

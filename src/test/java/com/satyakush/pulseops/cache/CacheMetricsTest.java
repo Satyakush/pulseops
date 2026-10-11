@@ -14,4 +14,6 @@ class CacheMetricsTest {
 
         assertEquals(2, metrics.invalidations());
     }
+
+    @Test void invalidationCountIncreasesByOnePerCall() { CacheMetrics metrics = new CacheMetrics(); metrics.recordInvalidation(); assertEquals(1, metrics.invalidations()); metrics.recordInvalidation(); assertEquals(2, metrics.invalidations()); }
 }

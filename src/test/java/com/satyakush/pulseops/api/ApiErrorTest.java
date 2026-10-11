@@ -21,4 +21,11 @@ class ApiErrorTest {
         assertEquals("req-42", error.requestId());
         assertEquals(404, error.status());
     }
+
+    @Test
+    void retainsPathAndReasonPhrase() {
+        ApiError error = new ApiError(OffsetDateTime.now(), 400, "Bad Request", "invalid", "/api/v1/services", null);
+        assertEquals("/api/v1/services", error.path());
+        assertEquals("Bad Request", error.error());
+    }
 }

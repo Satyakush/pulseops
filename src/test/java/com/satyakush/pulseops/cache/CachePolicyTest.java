@@ -26,4 +26,6 @@ class CachePolicyTest {
         assertNotNull(ServiceService.class.getMethod("create", String.class, String.class).getAnnotation(CacheEvict.class));
         assertNotNull(IncidentService.class.getMethod("create", com.satyakush.pulseops.incident.CreateIncidentRequest.class).getAnnotation(CacheEvict.class));
     }
+
+    @Test void cacheTtlIsPositive() { org.junit.jupiter.api.Assertions.assertTrue(new PulseOpsCacheProperties().getTtl().toSeconds() > 0); }
 }
