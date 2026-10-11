@@ -44,4 +44,6 @@ class IncidentControllerTest {
         mockMvc.perform(get("/api/v1/incidents/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound()).andExpect(jsonPath("$.status", is(404)));
     }
+
+    @Test void invalidSeverityReturnsBadRequest() throws Exception { mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON).content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Bad severity\",\"severity\":\"URGENT\"}")).andExpect(status().isBadRequest()); }
 }
