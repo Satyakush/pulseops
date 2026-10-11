@@ -71,4 +71,11 @@ class JpaServiceRepositoryTest {
 
         assertThat(repository.findById(id)).isEmpty();
     }
+
+    @Test
+    void persistsStatusEnumAsDomainValue() {
+        UUID id = UUID.randomUUID();
+        repository.save(new Service(id, "status-check-api", "Status mapping", ServiceStatus.DEGRADED));
+        assertThat(repository.findById(id)).get().extracting(Service::status).isEqualTo(ServiceStatus.DEGRADED);
+    }
 }
