@@ -1,0 +1,59 @@
+# API usage
+
+All application routes use the `/api/v1` prefix. Operational endpoints are protected by bearer-token authentication and role permissions.
+
+## 1. Register or log in
+Registration creates a `VIEWER` account:
+
+```bash
+curl -i -X POST http://localhost:8080/api/v1/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"demo-viewer","password":"replace-this-password"}'
+```
+
+Log in to receive a bearer token:
+
+```bash
+curl -i -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"demo-viewer","password":"replace-this-password"}'
+```
+
+Use the returned token as `Authorization: Bearer <token>` on protected requests. Do not paste real tokens into issue reports or commit them to source control.
+
+## 2. Read services
+```bash
+curl -H 'Authorization: Bearer <token>' \
+  http://localhost:8080/api/v1/services
+curl -H 'Authorization: Bearer <token>' \
+  'http://localhost:8080/api/v1/services?status=DEGRADED'
+curl -H 'Authorization: Bearer <token>' \
+  http://localhost:8080/api/v1/services/summary
+```
+
+## 3. Create a service
+Requires a role with service-write permission:
+
+```bash
+curl -i -X POST http://localhost:8080/api/v1/services \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"payments-api","description":"Processes customer payments"}'
+```
+
+## 4. Create an incident
+```bash
+curl -i -X POST http://localhost:8080/api/v1/incidents \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"serviceId":"00000000-0000-0000-0000-000000000001","title":"API latency","description":"Latency increased","severity":"HIGH"}'
+```
+
+The referenced service ID must identify a service that exists in the current repository state. New incidents start in `OPEN` status.
+
+## Authorization overview
+- `VIEWER`: read service and incident data.
+- `OPERATOR`: read and write service and incident data.
+- `ADMIN`: operator capabilities plus service deletion.
+
+A `401` indicates missing or invalid authentication; a `403` indicates an authenticated identity lacks the required permission; a `400` indicates invalid request data; and a `404` indicates the requested resource was not found.
