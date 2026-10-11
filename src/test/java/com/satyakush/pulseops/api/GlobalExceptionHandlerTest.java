@@ -41,4 +41,13 @@ class GlobalExceptionHandlerTest {
         assertEquals(500, response.getStatusCode().value());
         assertEquals(null, error.requestId());
     }
+
+    @Test
+    void unexpectedErrorsReturnGenericClientMessage() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/services");
+        ResponseEntity<ApiError> response = handler.handleUnexpectedException(new IllegalStateException("database password leaked"), request);
+        assertEquals("An unexpected error occurred", response.getBody().message());
+        org.junit.jupiter.api.Assertions.assertFalse(response.getBody().message().contains("database password"));
+    }
 }
