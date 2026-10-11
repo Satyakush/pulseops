@@ -37,4 +37,6 @@ class PulseOpsEventStreamTest {
     }
 
     @Test void shutdownWithoutSubscribersIsSafe() { PulseOpsEventStream stream = new PulseOpsEventStream(); stream.shutdown(); assertEquals(0, stream.subscriberCount()); }
+
+    @Test void shutdownClearsEverySubscriber() { PulseOpsEventStream stream = new PulseOpsEventStream(); stream.subscribe(); stream.subscribe(); stream.shutdown(); assertEquals(0, stream.subscriberCount()); }
 }
