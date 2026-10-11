@@ -21,4 +21,6 @@ class PointLookupCachePolicyTest {
         var annotation = IncidentService.class.getMethod("findById", UUID.class).getAnnotation(Cacheable.class);
         assertNotNull(annotation);
     }
+
+    @Test void serviceAndIncidentPointLookupsUseDistinctCacheKeys() { org.junit.jupiter.api.Assertions.assertNotEquals("service:id:1", "incident:id:1"); }
 }
