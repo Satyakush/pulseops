@@ -2,6 +2,7 @@ package com.satyakush.pulseops.api;
 
 import com.satyakush.pulseops.service.ServiceNotFoundException;
 import com.satyakush.pulseops.incident.IncidentNotFoundException;
+import com.satyakush.pulseops.incident.InvalidIncidentPageRequestException;
 import com.satyakush.pulseops.service.DuplicateServiceNameException;
 import com.satyakush.pulseops.auth.InvalidCredentialsException;
 import com.satyakush.pulseops.auth.DuplicateUsernameException;
@@ -19,6 +20,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceNotFoundException.class)
     public ResponseEntity<ApiError> handleServiceNotFound(ServiceNotFoundException exception, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(HttpStatus.NOT_FOUND, exception.getMessage(), request));
+    }
+
+    @ExceptionHandler(InvalidIncidentPageRequestException.class)
+    public ResponseEntity<ApiError> handleInvalidIncidentPage(InvalidIncidentPageRequestException exception, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(HttpStatus.BAD_REQUEST, exception.getMessage(), request));
     }
 
     @ExceptionHandler(IncidentNotFoundException.class)
