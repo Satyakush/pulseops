@@ -42,6 +42,17 @@ public class IncidentService {
     }
 
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
+    public Incident updateDetails(UUID id, UpdateIncidentRequest request) {
+        Incident incident = findById(id);
+        Incident updated = repository.save(new Incident(
+                incident.id(), incident.serviceId(), request.title().trim(), request.description(),
+                request.severity(), incident.status(), incident.createdAt()
+        ));
+        publish(PulseOpsEventType.INCIDENT_UPDATED, updated.id());
+        return updated;
+    }
+
+    @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
         Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
