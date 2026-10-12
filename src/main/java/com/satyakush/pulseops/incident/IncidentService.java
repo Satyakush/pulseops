@@ -31,7 +31,22 @@ public class IncidentService {
 
     @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'filter:' + #filter")
     public List<Incident> findAll(IncidentFilter filter) {
-        return repository.findAll().stream().filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE ? incident.status() != IncidentStatus.RESOLVED : incident.status() == IncidentStatus.RESOLVED))
+        return filterIncidents(repository.findAll(), filter, null, null);
+    }
+
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'query:' + #filter + ':' + #severity + ':' + #serviceId")
+    public List<Incident> findAll(IncidentFilter filter, IncidentSeverity severity, UUID serviceId) {
+        return filterIncidents(repository.findAll(), filter, severity, serviceId);
+    }
+
+    private List<Incident> filterIncidents(
+            List<Incident> incidents, IncidentFilter filter, IncidentSeverity severity, UUID serviceId) {
+        return incidents.stream()
+                .filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE
+                        ? incident.status() != IncidentStatus.RESOLVED
+                        : incident.status() == IncidentStatus.RESOLVED))
+                .filter(incident -> severity == null || incident.severity() == severity)
+                .filter(incident -> serviceId == null || incident.serviceId().equals(serviceId))
                 .sorted(Comparator.comparing(Incident::createdAt).reversed())
                 .toList();
     }
