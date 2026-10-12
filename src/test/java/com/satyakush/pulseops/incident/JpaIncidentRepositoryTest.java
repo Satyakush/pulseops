@@ -84,4 +84,21 @@ class JpaIncidentRepositoryTest {
 
         assertThat(repository.findAll()).contains(incident);
     }
+
+    @Test
+    void databasePageAppliesFiltersAndOrdersNewestFirst() {
+        UUID serviceId = UUID.randomUUID();
+        Incident older = new Incident(UUID.randomUUID(), serviceId, "Older", null,
+                IncidentSeverity.LOW, IncidentStatus.OPEN, OffsetDateTime.parse("2026-10-12T10:00:00Z"));
+        Incident newer = new Incident(UUID.randomUUID(), serviceId, "Newer", null,
+                IncidentSeverity.HIGH, IncidentStatus.OPEN, OffsetDateTime.parse("2026-10-12T11:00:00Z"));
+        repository.save(older);
+        repository.save(newer);
+
+        IncidentPage result = repository.findPage(0, 1, IncidentFilter.ACTIVE, null, serviceId);
+
+        assertThat(result.items()).containsExactly(newer);
+        assertThat(result.totalElements()).isEqualTo(2);
+        assertThat(result.totalPages()).isEqualTo(2);
+    }
 }
