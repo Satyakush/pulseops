@@ -17,8 +17,19 @@ public class IncidentController {
     }
 
     @GetMapping
-    public List<Incident> findAll(@RequestParam(required = false) IncidentFilter filter) {
-        return incidentService.findAll(filter);
+    public List<Incident> findAll(
+            @RequestParam(required = false) IncidentFilter filter,
+            @RequestParam(required = false) IncidentSeverity severity,
+            @RequestParam(required = false) UUID serviceId) {
+        if (severity == null && serviceId == null) {
+            return incidentService.findAll(filter);
+        }
+        return incidentService.findAll(filter, severity, serviceId);
+    }
+
+    @PatchMapping("/{id}")
+    public Incident updateDetails(@PathVariable UUID id, @Valid @RequestBody UpdateIncidentRequest request) {
+        return incidentService.updateDetails(id, request);
     }
 
     @PatchMapping("/{id}/status")

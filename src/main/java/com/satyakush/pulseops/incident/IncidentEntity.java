@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import java.time.OffsetDateTime;
@@ -15,7 +16,10 @@ import java.util.UUID;
  * of JPA so the in-memory and database-backed repositories share one contract.
  */
 @Entity
-@Table(name = "incidents")
+@Table(name = "incidents", indexes = {
+        @Index(name = "idx_incidents_service_id", columnList = "service_id"),
+        @Index(name = "idx_incidents_status_created_at", columnList = "status, created_at")
+})
 public class IncidentEntity {
 
     @Id
@@ -27,7 +31,7 @@ public class IncidentEntity {
     @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(length = 4000)
+    @Column(length = 1000)
     private String description;
 
     @Enumerated(EnumType.STRING)

@@ -31,7 +31,22 @@ public class IncidentService {
 
     @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'filter:' + #filter")
     public List<Incident> findAll(IncidentFilter filter) {
-        return repository.findAll().stream().filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE ? incident.status() != IncidentStatus.RESOLVED : incident.status() == IncidentStatus.RESOLVED))
+        return filterIncidents(repository.findAll(), filter, null, null);
+    }
+
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'query:' + #filter + ':' + #severity + ':' + #serviceId")
+    public List<Incident> findAll(IncidentFilter filter, IncidentSeverity severity, UUID serviceId) {
+        return filterIncidents(repository.findAll(), filter, severity, serviceId);
+    }
+
+    private List<Incident> filterIncidents(
+            List<Incident> incidents, IncidentFilter filter, IncidentSeverity severity, UUID serviceId) {
+        return incidents.stream()
+                .filter(incident -> filter == null || (filter == IncidentFilter.ACTIVE
+                        ? incident.status() != IncidentStatus.RESOLVED
+                        : incident.status() == IncidentStatus.RESOLVED))
+                .filter(incident -> severity == null || incident.severity() == severity)
+                .filter(incident -> serviceId == null || incident.serviceId().equals(serviceId))
                 .sorted(Comparator.comparing(Incident::createdAt).reversed())
                 .toList();
     }
@@ -39,6 +54,17 @@ public class IncidentService {
     @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'id:' + #id")
     public Incident findById(UUID id) {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));
+    }
+
+    @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
+    public Incident updateDetails(UUID id, UpdateIncidentRequest request) {
+        Incident incident = findById(id);
+        Incident updated = repository.save(new Incident(
+                incident.id(), incident.serviceId(), request.title().trim(), request.description(),
+                request.severity(), incident.status(), incident.createdAt()
+        ));
+        publish(PulseOpsEventType.INCIDENT_UPDATED, updated.id());
+        return updated;
     }
 
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
