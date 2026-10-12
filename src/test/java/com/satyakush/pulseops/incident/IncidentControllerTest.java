@@ -51,4 +51,27 @@ class IncidentControllerTest {
         mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON).content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Active issue\",\"severity\":\"HIGH\"}")).andExpect(status().isCreated());
         mockMvc.perform(get("/api/v1/incidents").param("filter", "ACTIVE")).andExpect(status().isOk()).andExpect(jsonPath("$[*].title", org.hamcrest.Matchers.hasItem("Active issue")));
     }
+    @Test void updateIncidentDetailsPreservesLifecycleStatus() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Queue alert\",\"severity\":\"LOW\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/incidents/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"Queue backlog\",\"description\":\"Worker queue is growing\",\"severity\":\"CRITICAL\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title", is("Queue backlog")))
+                .andExpect(jsonPath("$.severity", is("CRITICAL")))
+                .andExpect(jsonPath("$.status", is("OPEN")));
+    }
+
+    @Test void updateIncidentDetailsRejectsBlankTitle() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/incidents/{id}", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\" \",\"description\":\"bad\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isBadRequest());
+    }
 }
+
