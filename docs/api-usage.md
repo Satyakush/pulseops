@@ -57,3 +57,21 @@ The referenced service ID must identify a service that exists in the current rep
 - `ADMIN`: operator capabilities plus service deletion.
 
 A `401` indicates missing or invalid authentication; a `403` indicates an authenticated identity lacks the required permission; a `400` indicates invalid request data; and a `404` indicates the requested resource was not found.
+
+
+### Update incident details
+
+Use `PATCH /api/v1/incidents/{id}` to edit an incident's title, description, and severity without changing its lifecycle status or creation timestamp.
+
+```http
+PATCH /api/v1/incidents/{id}
+Content-Type: application/json
+
+{
+  "title": "Payment queue backlog",
+  "description": "Queue depth exceeded the operational threshold.",
+  "severity": "CRITICAL"
+}
+```
+
+The title must be non-blank and at most 150 characters; the description is limited to 1,000 characters. Severity must be one of `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`. Successful edits invalidate incident caches and publish an `INCIDENT_UPDATED` event to the live event stream.
