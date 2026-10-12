@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -28,6 +30,9 @@ class JpaIncidentRepositoryTest {
     @Autowired
     private IncidentRepository repository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Test
     void persistsAndReloadsIncidentIncludingEnumsAndTimestamp() {
         UUID id = UUID.randomUUID();
@@ -44,7 +49,7 @@ class JpaIncidentRepositoryTest {
 
         repository.save(incident);
         entityRepository.flush();
-        entityRepository.clear();
+        entityManager.clear();
 
         assertThat(repository.findById(id)).contains(incident);
     }
