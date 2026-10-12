@@ -84,3 +84,8 @@ The title must be non-blank and at most 150 characters; the description is limit
 ```http
 GET /api/v1/incidents?filter=ACTIVE&severity=CRITICAL&serviceId=00000000-0000-0000-0000-000000000011
 ```
+
+
+### Paginated incident search
+
+Use `GET /api/v1/incidents/page` for bounded result sets. It accepts `page` (zero-based, default `0`) and `size` (default `20`, maximum `100`), plus the optional `filter`, `severity`, and `serviceId` filters. The response includes `items`, `page`, `size`, `totalElements`, and `totalPages`. PostgreSQL executes filtering, ordering, and pagination in the database; the in-memory profile preserves the same response contract.

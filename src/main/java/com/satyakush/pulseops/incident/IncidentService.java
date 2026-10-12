@@ -51,6 +51,19 @@ public class IncidentService {
                 .toList();
     }
 
+    @Cacheable(value = PulseOpsCacheNames.INCIDENTS,
+            key = "'page:' + #page + ':' + #size + ':' + #filter + ':' + #severity + ':' + #serviceId")
+    public IncidentPage findPage(int page, int size, IncidentFilter filter,
+                                 IncidentSeverity severity, UUID serviceId) {
+        if (page < 0) {
+            throw new InvalidIncidentPageRequestException("page must be zero or greater");
+        }
+        if (size < 1 || size > 100) {
+            throw new InvalidIncidentPageRequestException("size must be between 1 and 100");
+        }
+        return repository.findPage(page, size, filter, severity, serviceId);
+    }
+
     @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'id:' + #id")
     public Incident findById(UUID id) {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));

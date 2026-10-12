@@ -89,6 +89,28 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$.length()", is(1)))
                 .andExpect(jsonPath("$[0].title", is("Critical priority")));
     }
+
+    @Test void paginatedIncidentSearchReturnsMetadataAndHonorsPageSize() throws Exception {
+        String serviceId = "00000000-0000-0000-0000-000000000021";
+        mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"" + serviceId + "\",\"title\":\"First issue\",\"severity\":\"LOW\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"" + serviceId + "\",\"title\":\"Second issue\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/v1/incidents/page").param("page", "0").param("size", "1").param("serviceId", serviceId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()", is(1)))
+                .andExpect(jsonPath("$.page", is(0)))
+                .andExpect(jsonPath("$.size", is(1)))
+                .andExpect(jsonPath("$.totalElements", is(2)))
+                .andExpect(jsonPath("$.totalPages", is(2)));
+    }
+
+    @Test void paginatedIncidentSearchRejectsOversizedPages() throws Exception {
+        mockMvc.perform(get("/api/v1/incidents/page").param("size", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)));
+    }
 }
-
-

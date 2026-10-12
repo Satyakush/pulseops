@@ -27,6 +27,16 @@ public class IncidentController {
         return incidentService.findAll(filter, severity, serviceId);
     }
 
+    @GetMapping("/page")
+    public IncidentPage findPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) IncidentFilter filter,
+            @RequestParam(required = false) IncidentSeverity severity,
+            @RequestParam(required = false) UUID serviceId) {
+        return incidentService.findPage(page, size, filter, severity, serviceId);
+    }
+
     @PatchMapping("/{id}")
     public Incident updateDetails(@PathVariable UUID id, @Valid @RequestBody UpdateIncidentRequest request) {
         return incidentService.updateDetails(id, request);
