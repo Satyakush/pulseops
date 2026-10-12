@@ -7,11 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.persistence.criteria.Predicate;
 
 @Repository
