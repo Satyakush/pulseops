@@ -73,5 +73,20 @@ class IncidentControllerTest {
                 .content("{\"title\":\" \",\"description\":\"bad\",\"severity\":\"HIGH\"}"))
                 .andExpect(status().isBadRequest());
     }
+    @Test void filtersIncidentsBySeverityAndService() throws Exception {
+        String serviceId = "00000000-0000-0000-0000-000000000011";
+        mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"" + serviceId + "\",\"title\":\"Low priority\",\"severity\":\"LOW\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"" + serviceId + "\",\"title\":\"Critical priority\",\"severity\":\"CRITICAL\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/v1/incidents").param("severity", "CRITICAL").param("serviceId", serviceId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].title", is("Critical priority")));
+    }
 }
+
 
