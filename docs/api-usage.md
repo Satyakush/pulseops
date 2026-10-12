@@ -75,3 +75,12 @@ Content-Type: application/json
 ```
 
 The title must be non-blank and at most 150 characters; the description is limited to 1,000 characters. Severity must be one of `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`. Successful edits invalidate incident caches and publish an `INCIDENT_UPDATED` event to the live event stream.
+
+
+### Filter incidents
+
+`GET /api/v1/incidents` supports optional `filter=ACTIVE|RESOLVED`, `severity=LOW|MEDIUM|HIGH|CRITICAL`, and `serviceId=<UUID>` query parameters. Filters can be combined, and results remain ordered newest first.
+
+```http
+GET /api/v1/incidents?filter=ACTIVE&severity=CRITICAL&serviceId=00000000-0000-0000-0000-000000000011
+```
