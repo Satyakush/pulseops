@@ -30,6 +30,23 @@ class InMemoryIncidentActivityRepositoryTest {
     }
 
     @Test
+    void actionFilterRestrictsPageItemsAndTotals() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
+                "operator", "created", java.time.OffsetDateTime.parse("2026-10-13T10:00:00Z")));
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.STATUS_CHANGED,
+                "operator", "resolved", java.time.OffsetDateTime.parse("2026-10-13T11:00:00Z")));
+
+        IncidentActivityPage result = repository.findPageByIncidentId(
+                incidentId, IncidentActivityAction.STATUS_CHANGED, 0, 10);
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).action()).isEqualTo(IncidentActivityAction.STATUS_CHANGED);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+    }
+
+    @Test
     void paginatesNewestFirstAndReportsTotalMetadata() {
         UUID incidentId = UUID.randomUUID();
         IncidentActivity older = activity(incidentId, "2026-10-13T10:00:00Z");

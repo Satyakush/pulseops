@@ -48,12 +48,17 @@ public class IncidentActivityService {
     }
 
     public IncidentActivityPage findPageForIncident(UUID incidentId, int page, int size) {
+        return findPageForIncident(incidentId, null, page, size);
+    }
+
+    public IncidentActivityPage findPageForIncident(
+            UUID incidentId, IncidentActivityAction action, int page, int size) {
         if (page < 0) {
             throw new InvalidIncidentPageRequestException("page must be zero or greater");
         }
         if (size < 1 || size > 100) {
             throw new InvalidIncidentPageRequestException("size must be between 1 and 100");
         }
-        return repository.findPageByIncidentId(incidentId, page, size);
+        return repository.findPageByIncidentId(incidentId, action, page, size);
     }
 }

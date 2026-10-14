@@ -30,10 +30,11 @@ public class IncidentActivityController {
     @GetMapping("/page")
     public IncidentActivityPage findPageForIncident(
             @PathVariable UUID incidentId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) IncidentActivityAction action,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size) {
         // Preserve the same 404 behavior as the unpaginated timeline.
         incidentService.findById(incidentId);
-        return activityService.findPageForIncident(incidentId, page, size);
+        return activityService.findPageForIncident(incidentId, action, page, size);
     }
 }

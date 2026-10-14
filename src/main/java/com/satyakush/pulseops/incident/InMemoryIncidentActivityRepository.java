@@ -25,8 +25,11 @@ public class InMemoryIncidentActivityRepository implements IncidentActivityRepos
     }
 
     @Override
-    public IncidentActivityPage findPageByIncidentId(UUID incidentId, int page, int size) {
+    public IncidentActivityPage findPageByIncidentId(UUID incidentId, IncidentActivityAction action, int page, int size) {
         List<IncidentActivity> all = findByIncidentId(incidentId);
+        if (action != null) {
+            all = all.stream().filter(activity -> activity.action() == action).toList();
+        }
         long offset = (long) page * size;
         int start = (int) Math.min(offset, all.size());
         int end = Math.min(start + size, all.size());

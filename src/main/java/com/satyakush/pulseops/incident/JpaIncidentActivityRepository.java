@@ -30,9 +30,12 @@ public class JpaIncidentActivityRepository implements IncidentActivityRepository
     }
 
     @Override
-    public IncidentActivityPage findPageByIncidentId(UUID incidentId, int page, int size) {
-        var result = repository.findByIncidentIdOrderByOccurredAtDescIdDesc(incidentId,
-                PageRequest.of(page, size));
+    public IncidentActivityPage findPageByIncidentId(
+            UUID incidentId, IncidentActivityAction action, int page, int size) {
+        var pageable = PageRequest.of(page, size);
+        var result = action == null
+                ? repository.findByIncidentIdOrderByOccurredAtDescIdDesc(incidentId, pageable)
+                : repository.findByIncidentIdAndActionOrderByOccurredAtDescIdDesc(incidentId, action, pageable);
         return new IncidentActivityPage(
                 result.getContent().stream().map(IncidentActivityEntity::toDomain).toList(),
                 result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());

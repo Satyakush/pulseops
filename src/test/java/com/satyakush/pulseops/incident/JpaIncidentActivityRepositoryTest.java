@@ -55,6 +55,24 @@ class JpaIncidentActivityRepositoryTest {
     }
 
     @Test
+    void appliesActionFilterInDatabaseAndCountsOnlyMatchingEntries() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
+                "operator", "created", OffsetDateTime.parse("2026-10-14T10:00:00Z")));
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.STATUS_CHANGED,
+                "operator", "resolved", OffsetDateTime.parse("2026-10-14T11:00:00Z")));
+        entityRepository.flush();
+        entityManager.clear();
+
+        IncidentActivityPage result = repository.findPageByIncidentId(
+                incidentId, IncidentActivityAction.STATUS_CHANGED, 0, 10);
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).action()).isEqualTo(IncidentActivityAction.STATUS_CHANGED);
+        assertThat(result.totalElements()).isEqualTo(1);
+    }
+
+    @Test
     void usesDatabasePagingAndPreservesNewestFirstOrdering() {
         UUID incidentId = UUID.randomUUID();
         IncidentActivity older = activity(incidentId, "2026-10-14T10:00:00Z", "Older entry");
