@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +26,7 @@ class SecurityContextIncidentActorProviderTest {
     @Test
     void usesAuthenticatedPrincipalName() {
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("on-call-operator", "ignored"));
+                new UsernamePasswordAuthenticationToken("on-call-operator", "ignored", List.of()));
 
         assertThat(provider.currentActor()).isEqualTo("on-call-operator");
     }
