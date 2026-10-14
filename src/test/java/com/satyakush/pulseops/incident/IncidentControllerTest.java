@@ -35,13 +35,22 @@ class IncidentControllerTest {
     }
 
     @Test void incidentSummaryCountsOpenIncidents() throws Exception {
+        // Assert the change caused by this request rather than assuming the store
+        // starts empty. This is robust to shared/reused test fixtures.
+        String initialSummary = mockMvc.perform(get("/api/v1/incidents/summary"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        var initial = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(initialSummary);
+
         mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Queue alert\",\"severity\":\"LOW\"}"))
                 .andExpect(status().isCreated());
-        mockMvc.perform(get("/api/v1/incidents/summary")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.total", is(1))).andExpect(jsonPath("$.open", is(1)));
-    }
 
+        mockMvc.perform(get("/api/v1/incidents/summary")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.total", is(initial.get("total").asInt() + 1)))
+                .andExpect(jsonPath("$.open", is(initial.get("open").asInt() + 1)));
+    }
     @Test void missingIncidentReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound()).andExpect(jsonPath("$.status", is(404)));
