@@ -81,7 +81,7 @@ Create-service request:
 - `GET /api/v1/incidents?filter=ACTIVE` — filter incidents.
 - `GET /api/v1/incidents/{id}` — retrieve one incident.
 - `GET /api/v1/incidents/{id}/activity` — read its append-only activity timeline, newest first.
-- `GET /api/v1/incidents/{id}/activity/page?page=0&size=20` — database-backed, bounded activity history (maximum page size: 100).
+- `GET /api/v1/incidents/{id}/activity/page?page=0&size=20` — database-backed, bounded activity history (maximum page size: 100); supports `action=CREATED|DETAILS_UPDATED|STATUS_CHANGED`.
 - `GET /api/v1/incidents/summary` — counts by incident status.
 - `POST /api/v1/incidents` — create an incident; requires write permission.
 - `PATCH /api/v1/incidents/{id}` — update title, description, or severity; requires write permission.
