@@ -29,6 +29,24 @@ class InMemoryIncidentActivityRepositoryTest {
         assertThat(repository.findByIncidentId(UUID.randomUUID())).isEmpty();
     }
 
+    @Test
+    void paginatesNewestFirstAndReportsTotalMetadata() {
+        UUID incidentId = UUID.randomUUID();
+        IncidentActivity older = activity(incidentId, "2026-10-13T10:00:00Z");
+        IncidentActivity newer = activity(incidentId, "2026-10-13T11:00:00Z");
+        repository.save(older);
+        repository.save(newer);
+
+        IncidentActivityPage firstPage = repository.findPageByIncidentId(incidentId, 0, 1);
+        IncidentActivityPage secondPage = repository.findPageByIncidentId(incidentId, 1, 1);
+
+        assertThat(firstPage.items()).containsExactly(newer);
+        assertThat(firstPage.totalElements()).isEqualTo(2);
+        assertThat(firstPage.totalPages()).isEqualTo(2);
+        assertThat(secondPage.items()).containsExactly(older);
+        assertThat(secondPage.page()).isEqualTo(1);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", "Incident opened", OffsetDateTime.parse(timestamp));
