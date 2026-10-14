@@ -18,10 +18,13 @@ import com.satyakush.pulseops.cache.PulseOpsCacheNames;
 public class IncidentService {
     private final IncidentRepository repository;
     private final PulseOpsEventPublisher eventPublisher;
+    private final IncidentActivityService activityService;
 
-    public IncidentService(IncidentRepository repository, PulseOpsEventPublisher eventPublisher) {
+    public IncidentService(IncidentRepository repository, PulseOpsEventPublisher eventPublisher,
+                           IncidentActivityService activityService) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
+        this.activityService = activityService;
     }
 
     @Cacheable(PulseOpsCacheNames.INCIDENTS)
@@ -76,6 +79,8 @@ public class IncidentService {
                 incident.id(), incident.serviceId(), request.title().trim(), request.description(),
                 request.severity(), incident.status(), incident.createdAt()
         ));
+        activityService.record(updated.id(), IncidentActivityAction.DETAILS_UPDATED,
+                "Incident details updated");
         publish(PulseOpsEventType.INCIDENT_UPDATED, updated.id());
         return updated;
     }
@@ -84,6 +89,8 @@ public class IncidentService {
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
         Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
+        activityService.record(updated.id(), IncidentActivityAction.STATUS_CHANGED,
+                "Incident status changed to " + status.name());
         publish(PulseOpsEventType.INCIDENT_STATUS_CHANGED, updated.id());
         return updated;
     }
@@ -105,6 +112,7 @@ public class IncidentService {
                 request.severity(), IncidentStatus.OPEN, OffsetDateTime.now()
         );
         Incident saved = repository.save(incident);
+        activityService.record(saved.id(), IncidentActivityAction.CREATED, "Incident created");
         publish(PulseOpsEventType.INCIDENT_CREATED, saved.id());
         return saved;
     }
