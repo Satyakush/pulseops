@@ -7,4 +7,5 @@ import java.util.UUID;
 public interface IncidentActivityRepository {
     IncidentActivity save(IncidentActivity activity);
     List<IncidentActivity> findByIncidentId(UUID incidentId);
+    IncidentActivityPage findPageByIncidentId(UUID incidentId, int page, int size);
 }
