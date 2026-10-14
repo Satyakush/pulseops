@@ -12,6 +12,7 @@ import com.satyakush.pulseops.realtime.PulseOpsEventType;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.transaction.annotation.Transactional;
 import com.satyakush.pulseops.cache.PulseOpsCacheNames;
 
 @Service
@@ -72,6 +73,7 @@ public class IncidentService {
         return repository.findById(id).orElseThrow(() -> new IncidentNotFoundException(id));
     }
 
+    @Transactional
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident updateDetails(UUID id, UpdateIncidentRequest request) {
         Incident incident = findById(id);
@@ -85,6 +87,7 @@ public class IncidentService {
         return updated;
     }
 
+    @Transactional
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
@@ -105,6 +108,7 @@ public class IncidentService {
         return incidents.stream().filter(incident -> incident.status() == status).count();
     }
 
+    @Transactional
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident create(CreateIncidentRequest request) {
         Incident incident = new Incident(
