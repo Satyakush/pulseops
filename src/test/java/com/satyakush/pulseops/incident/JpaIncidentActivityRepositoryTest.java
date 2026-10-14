@@ -54,6 +54,25 @@ class JpaIncidentActivityRepositoryTest {
         assertThat(repository.findByIncidentId(UUID.randomUUID())).isEmpty();
     }
 
+    @Test
+    void usesDatabasePagingAndPreservesNewestFirstOrdering() {
+        UUID incidentId = UUID.randomUUID();
+        IncidentActivity older = activity(incidentId, "2026-10-14T10:00:00Z", "Older entry");
+        IncidentActivity newer = activity(incidentId, "2026-10-14T11:00:00Z", "Newer entry");
+        repository.save(older);
+        repository.save(newer);
+        entityRepository.flush();
+        entityManager.clear();
+
+        IncidentActivityPage first = repository.findPageByIncidentId(incidentId, 0, 1);
+        IncidentActivityPage second = repository.findPageByIncidentId(incidentId, 1, 1);
+
+        assertThat(first.items()).containsExactly(newer);
+        assertThat(first.totalElements()).isEqualTo(2);
+        assertThat(first.totalPages()).isEqualTo(2);
+        assertThat(second.items()).containsExactly(older);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp, String summary) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", summary, OffsetDateTime.parse(timestamp));
