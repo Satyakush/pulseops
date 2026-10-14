@@ -89,3 +89,30 @@ GET /api/v1/incidents?filter=ACTIVE&severity=CRITICAL&serviceId=00000000-0000-00
 ### Paginated incident search
 
 Use `GET /api/v1/incidents/page` for bounded result sets. It accepts `page` (zero-based, default `0`) and `size` (default `20`, maximum `100`), plus the optional `filter`, `severity`, and `serviceId` filters. The response includes `items`, `page`, `size`, `totalElements`, and `totalPages`. PostgreSQL executes filtering, ordering, and pagination in the database; the in-memory profile preserves the same response contract.
+
+### Read an incident activity timeline
+
+Every incident exposes an append-only activity history. Creation, detail edits, and status changes are recorded with an action code, actor, timestamp, and summary.
+
+```bash
+curl -H 'Authorization: Bearer <token>' \
+  http://localhost:8080/api/v1/incidents/<incident-id>/activity
+```
+
+Entries are returned newest first. An unknown incident returns the standard `404` API error; an existing incident with no entries returns an empty array. Activity writes are part of the incident lifecycle transaction, so the incident and its audit entry are committed or rolled back together.
+
+Example entry:
+
+```json
+{
+  "id": "8b0bdbf2-80b8-43c1-bc63-96a0d15f9d10",
+  "incidentId": "00000000-0000-0000-0000-000000000001",
+  "action": "STATUS_CHANGED",
+  "actor": "on-call-operator",
+  "summary": "Incident status changed to RESOLVED",
+  "occurredAt": "2026-10-14T11:45:00Z"
+}
+```
+
+The actor falls back to `system` when no authenticated principal is available. Avoid putting credentials, tokens, or unnecessary personal information into incident fields or activity summaries.
+
