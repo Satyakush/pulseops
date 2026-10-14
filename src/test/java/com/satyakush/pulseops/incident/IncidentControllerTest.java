@@ -15,8 +15,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(IncidentController.class)
-@Import({GlobalExceptionHandler.class, IncidentService.class, InMemoryIncidentRepository.class, com.satyakush.pulseops.realtime.PulseOpsEventPublisher.class})
+@WebMvcTest({IncidentController.class, IncidentActivityController.class})
+@Import({GlobalExceptionHandler.class, IncidentService.class, InMemoryIncidentRepository.class, IncidentActivityService.class, InMemoryIncidentActivityRepository.class, SecurityContextIncidentActorProvider.class, com.satyakush.pulseops.realtime.PulseOpsEventPublisher.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class IncidentControllerTest {
     @Autowired MockMvc mockMvc;
@@ -26,6 +26,27 @@ class IncidentControllerTest {
                 .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"description\":\"Latency increased\",\"severity\":\"HIGH\"}"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.status", is("OPEN")))
                 .andExpect(jsonPath("$.severity", is("HIGH")));
+    }
+
+    @Test void createdIncidentExposesItsActivityTimeline() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].action", is("CREATED")))
+                .andExpect(jsonPath("$[0].summary", is("Incident created")));
+    }
+
+    @Test void activityTimelineForUnknownIncidentReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity", UUID.randomUUID()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)));
     }
 
     @Test void missingTitleReturnsBadRequest() throws Exception {
