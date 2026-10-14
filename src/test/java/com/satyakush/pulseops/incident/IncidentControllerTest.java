@@ -43,6 +43,34 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$[0].summary", is("Incident created")));
     }
 
+    @Test void paginatedActivityEndpointReturnsPageMetadata() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id).param("page", "0").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()", is(1)))
+                .andExpect(jsonPath("$.page", is(0)))
+                .andExpect(jsonPath("$.size", is(1)))
+                .andExpect(jsonPath("$.totalElements", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)));
+    }
+
+    @Test void paginatedActivityEndpointRejectsOversizedPages() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id).param("size", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
     @Test void activityTimelineForUnknownIncidentReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/{id}/activity", UUID.randomUUID()))
                 .andExpect(status().isNotFound())
