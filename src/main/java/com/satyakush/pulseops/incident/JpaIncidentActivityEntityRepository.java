@@ -11,4 +11,6 @@ public interface JpaIncidentActivityEntityRepository
         extends JpaRepository<IncidentActivityEntity, UUID> {
     List<IncidentActivityEntity> findByIncidentIdOrderByOccurredAtDescIdDesc(UUID incidentId);
     Page<IncidentActivityEntity> findByIncidentIdOrderByOccurredAtDescIdDesc(UUID incidentId, Pageable pageable);
+    Page<IncidentActivityEntity> findByIncidentIdAndActionOrderByOccurredAtDescIdDesc(
+            UUID incidentId, IncidentActivityAction action, Pageable pageable);
 }
