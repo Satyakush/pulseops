@@ -4,7 +4,7 @@ The incident activity timeline is an append-only audit trail for meaningful inci
 
 ## API
 
-`GET /api/v1/incidents/{incidentId}/activity` returns the incident's activity entries in newest-first order. The endpoint first verifies that the incident exists, so an unknown incident returns the standard API 404 response rather than an indistinguishable empty list.
+`GET /api/v1/incidents/{incidentId}/activity` returns the incident's activity entries in newest-first order. The endpoint first verifies that the incident exists, so an unknown incident returns the standard API 404 response rather than an indistinguishable empty list. For long histories, use `GET /api/v1/incidents/{incidentId}/activity/page?page=0&size=20`; page numbering is zero-based and page size is limited to 1–100. The paginated response includes `items`, `page`, `size`, `totalElements`, and `totalPages`, with PostgreSQL applying the limit and offset in the database.
 
 Each entry contains:
 - `id`: unique activity identifier
