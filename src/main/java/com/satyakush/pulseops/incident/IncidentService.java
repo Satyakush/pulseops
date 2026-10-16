@@ -91,11 +91,32 @@ public class IncidentService {
     @CacheEvict(value = PulseOpsCacheNames.INCIDENTS, allEntries = true)
     public Incident updateStatus(UUID id, IncidentStatus status) {
         Incident incident = findById(id);
-        Incident updated = repository.save(new Incident(incident.id(), incident.serviceId(), incident.title(), incident.description(), incident.severity(), status, incident.createdAt()));
+        if (status == null) {
+            throw new InvalidIncidentStatusTransitionException(incident.status(), null);
+        }
+        if (incident.status() == status || !isAllowedTransition(incident.status(), status)) {
+            throw new InvalidIncidentStatusTransitionException(incident.status(), status);
+        }
+
+        Incident updated = repository.save(new Incident(
+                incident.id(), incident.serviceId(), incident.title(), incident.description(),
+                incident.severity(), status, incident.createdAt()));
         activityService.record(updated.id(), IncidentActivityAction.STATUS_CHANGED,
                 "Incident status changed to " + status.name());
         publish(PulseOpsEventType.INCIDENT_STATUS_CHANGED, updated.id());
         return updated;
+    }
+
+    /**
+     * Allowed lifecycle: OPEN -> INVESTIGATING -> RESOLVED, with direct resolution
+     * from OPEN and reopening a resolved incident to investigate it again.
+     */
+    static boolean isAllowedTransition(IncidentStatus current, IncidentStatus requested) {
+        return switch (current) {
+            case OPEN -> requested == IncidentStatus.INVESTIGATING || requested == IncidentStatus.RESOLVED;
+            case INVESTIGATING -> requested == IncidentStatus.OPEN || requested == IncidentStatus.RESOLVED;
+            case RESOLVED -> requested == IncidentStatus.INVESTIGATING;
+        };
     }
 
     @Cacheable(value = PulseOpsCacheNames.INCIDENTS, key = "'summary'")
