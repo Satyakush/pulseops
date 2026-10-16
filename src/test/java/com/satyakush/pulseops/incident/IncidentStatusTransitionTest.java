@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
+import com.satyakush.pulseops.realtime.PulseOpsEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,13 +21,15 @@ import org.junit.jupiter.params.provider.CsvSource;
 class IncidentStatusTransitionTest {
     private IncidentRepository repository;
     private IncidentActivityService activityService;
+    private PulseOpsEventPublisher eventPublisher;
     private IncidentService service;
 
     @BeforeEach
     void setUp() {
         repository = mock(IncidentRepository.class);
         activityService = mock(IncidentActivityService.class);
-        service = new IncidentService(repository, mock(PulseOpsEventPublisher.class), activityService);
+        eventPublisher = mock(PulseOpsEventPublisher.class);
+        service = new IncidentService(repository, eventPublisher, activityService);
     }
 
     @Test
@@ -56,6 +59,7 @@ class IncidentStatusTransitionTest {
         verify(activityService, never()).record(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.anyString());
+        verify(eventPublisher, never()).publish(org.mockito.ArgumentMatchers.any(PulseOpsEvent.class));
     }
 
     @Test
