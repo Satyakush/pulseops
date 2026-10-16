@@ -14,6 +14,8 @@ import java.util.UUID;
 import com.satyakush.pulseops.realtime.PulseOpsEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class IncidentStatusTransitionTest {
     private IncidentRepository repository;
@@ -90,6 +92,23 @@ class IncidentStatusTransitionTest {
         Incident updated = service.updateStatus(incident.id(), IncidentStatus.INVESTIGATING);
 
         assertThat(updated.status()).isEqualTo(IncidentStatus.INVESTIGATING);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "OPEN,OPEN,false",
+            "OPEN,INVESTIGATING,true",
+            "OPEN,RESOLVED,true",
+            "INVESTIGATING,OPEN,true",
+            "INVESTIGATING,INVESTIGATING,false",
+            "INVESTIGATING,RESOLVED,true",
+            "RESOLVED,OPEN,false",
+            "RESOLVED,INVESTIGATING,true",
+            "RESOLVED,RESOLVED,false"
+    })
+    void lifecycleMatrixExplicitlyDefinesEveryStatusPair(
+            IncidentStatus current, IncidentStatus requested, boolean allowed) {
+        assertThat(IncidentService.isAllowedTransition(current, requested)).isEqualTo(allowed);
     }
 
     private Incident incident(IncidentStatus status) {
