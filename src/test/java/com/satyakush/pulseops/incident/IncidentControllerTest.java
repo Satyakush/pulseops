@@ -121,6 +121,22 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$.total", is(initial.get("total").asInt() + 1)))
                 .andExpect(jsonPath("$.open", is(initial.get("open").asInt() + 1)));
     }
+    @Test void repeatedIncidentStatusReturnsConflict() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"Repeated transition\",\"severity\":\"HIGH\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(
+                        "/api/v1/incidents/{id}/status", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\":\"OPEN\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status", is(409)))
+                .andExpect(jsonPath("$.message", is("Cannot transition incident from OPEN to OPEN")));
+    }
+
     @Test void missingIncidentReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound()).andExpect(jsonPath("$.status", is(404)));

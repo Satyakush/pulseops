@@ -25,3 +25,15 @@ Each entry contains:
 ## Operational notes
 
 The timeline is an audit aid, not a replacement for application logs or event delivery. Keep summaries free of secrets, credentials, and unnecessary personal data. Before a production rollout, verify that incident writes and activity writes share a transaction under the selected persistence profile.
+
+## Incident status transitions
+
+Status changes follow an explicit lifecycle rather than accepting any enum value:
+
+| Current status | Allowed next status | Notes |
+| --- | --- | --- |
+| `OPEN` | `INVESTIGATING`, `RESOLVED` | Incidents may be resolved directly when investigation is unnecessary. |
+| `INVESTIGATING` | `OPEN`, `RESOLVED` | Return to open when work is paused or resolve when addressed. |
+| `RESOLVED` | `INVESTIGATING` | Reopening requires an explicit return to investigation. |
+
+Repeated status updates and all transitions not listed above are rejected with HTTP `409 Conflict`. A rejected transition does not save an incident, write an activity entry, or publish a lifecycle event. A successful transition persists the new status and its `STATUS_CHANGED` activity entry together under the transactional service boundary.

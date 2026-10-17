@@ -85,7 +85,7 @@ Create-service request:
 - `GET /api/v1/incidents/summary` — counts by incident status.
 - `POST /api/v1/incidents` — create an incident; requires write permission.
 - `PATCH /api/v1/incidents/{id}` — update title, description, or severity; requires write permission.
-- `PATCH /api/v1/incidents/{id}/status` — update incident status; requires write permission.
+- `PATCH /api/v1/incidents/{id}/status` — update incident status; requires write permission. Invalid or repeated transitions return `409 Conflict`; see the [incident lifecycle transition matrix](docs/operations/incident-activity-timeline.md#incident-status-transitions).
 
 Incident activity records creation, detail edits, and status changes with an action code, actor, timestamp, and concise summary. In the PostgreSQL profile, lifecycle writes and activity records share a transaction. See the [activity timeline runbook](docs/operations/incident-activity-timeline.md).
 
