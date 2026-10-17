@@ -25,3 +25,14 @@ Each entry contains:
 ## Operational notes
 
 The timeline is an audit aid, not a replacement for application logs or event delivery. Keep summaries free of secrets, credentials, and unnecessary personal data. Before a production rollout, verify that incident writes and activity writes share a transaction under the selected persistence profile.
+
+
+## Pagination error responses
+
+The paginated activity endpoint uses the standard `ApiError` response envelope:
+
+- `400 Bad Request`: page is negative, size is outside 1–100, or the action filter is not a supported `IncidentActivityAction`.
+- `404 Not Found`: the incident identifier does not resolve to an existing incident.
+- `200 OK` with an empty `items` array: the incident exists, but no activity entries match the requested filter/page.
+
+Invalid query values are client errors. They must not be reported as internal server errors, and responses must not expose exception details or stack traces.
