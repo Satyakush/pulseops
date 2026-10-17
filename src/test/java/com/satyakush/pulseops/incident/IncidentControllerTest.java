@@ -119,6 +119,19 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$.message", is("page must be zero or greater")));
     }
 
+    @Test void paginatedActivityEndpointRejectsPageSizeAboveMaximum() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id).param("size", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("size must be between 1 and 100")));
+    }
+
     @Test void paginatedActivityEndpointRejectsUnknownAction() throws Exception {
         String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
