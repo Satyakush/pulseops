@@ -75,6 +75,12 @@ Create-service request:
 }
 ```
 
+### Activity timeline error handling
+- Invalid pagination values (negative `page`, `size` outside 1–100, or unsupported `action`) return HTTP `400` with the standard safe `ApiError` response.
+- A missing incident returns HTTP `404`.
+- An existing incident with no matching activity returns HTTP `200` and an empty `items` list.
+- Unexpected server failures return a generic message and do not expose internal exception details.
+
 ### Incidents
 - `GET /api/v1/incidents` — list incidents, optionally filtered by lifecycle, severity, or service.
 - `GET /api/v1/incidents/page?page=0&size=20` — database-backed paginated incident search (maximum page size: 100).
