@@ -9,3 +9,5 @@
 - [ ] Configure token/session invalidation during password changes.
 - [ ] Verify access rules with integration tests for every HTTP method.
 - [ ] Keep health probes public while protecting operational endpoints.
+- [ ] Verify malformed query parameters and enum filters return HTTP 400 with a safe error envelope.
+- [ ] Verify unexpected exceptions return generic client messages without leaking exception text or secrets.
