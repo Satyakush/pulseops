@@ -75,6 +75,20 @@ Create-service request:
 }
 ```
 
+### Incidents
+- `GET /api/v1/incidents` — list incidents, optionally filtered by lifecycle, severity, or service.
+- `GET /api/v1/incidents/page?page=0&size=20` — database-backed paginated incident search (maximum page size: 100).
+- `GET /api/v1/incidents?filter=ACTIVE` — filter incidents.
+- `GET /api/v1/incidents/{id}` — retrieve one incident.
+- `GET /api/v1/incidents/{id}/activity` — read its append-only activity timeline, newest first.
+- `GET /api/v1/incidents/{id}/activity/page?page=0&size=20` — database-backed, bounded activity history (maximum page size: 100); supports `action=CREATED|DETAILS_UPDATED|STATUS_CHANGED`.
+- `GET /api/v1/incidents/summary` — counts by incident status.
+- `POST /api/v1/incidents` — create an incident; requires write permission.
+- `PATCH /api/v1/incidents/{id}` — update title, description, or severity; requires write permission.
+- `PATCH /api/v1/incidents/{id}/status` — update incident status; requires write permission. Invalid or repeated transitions return `409 Conflict`; see the [incident lifecycle transition matrix](docs/operations/incident-activity-timeline.md#incident-status-transitions).
+
+Incident activity records creation, detail edits, and status changes with an action code, actor, timestamp, and concise summary. In the PostgreSQL profile, lifecycle writes and activity records share a transaction. See the [activity timeline runbook](docs/operations/incident-activity-timeline.md).
+
 ### Activity timeline error handling
 - Invalid pagination values (negative `page`, `size` outside 1–100, or unsupported `action`) return HTTP `400` with the standard safe `ApiError` response.
 - A missing incident returns HTTP `404`.
@@ -92,8 +106,6 @@ Create-service request:
 - `POST /api/v1/incidents` — create an incident; requires write permission.
 - `PATCH /api/v1/incidents/{id}` — update title, description, or severity; requires write permission.
 - `PATCH /api/v1/incidents/{id}/status` — update incident status; requires write permission.
-
-Incident activity records creation, detail edits, and status changes with an action code, actor, timestamp, and concise summary. In the PostgreSQL profile, lifecycle writes and activity records share a transaction. See the [activity timeline runbook](docs/operations/incident-activity-timeline.md).
 
 Create-incident request:
 
