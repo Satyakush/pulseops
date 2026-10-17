@@ -50,4 +50,22 @@ class GlobalExceptionHandlerTest {
         assertEquals("An unexpected error occurred", response.getBody().message());
         org.junit.jupiter.api.Assertions.assertFalse(response.getBody().message().contains("database password"));
     }
+    @Test
+    void invalidQueryParameterReturnsBadRequestWithSafeMessage() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/incidents/123/activity/page");
+        request.setAttribute(RequestIdFilter.ATTRIBUTE, "req-400");
+        org.springframework.web.method.annotation.MethodArgumentTypeMismatchException exception =
+                new org.springframework.web.method.annotation.MethodArgumentTypeMismatchException(
+                        "UNKNOWN", com.satyakush.pulseops.incident.IncidentActivityAction.class,
+                        "action", null, new IllegalArgumentException("invalid enum"));
+
+        ResponseEntity<ApiError> response = handler.handleTypeMismatch(exception, request);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals(400, response.getBody().status());
+        assertEquals("Invalid value for parameter 'action'", response.getBody().message());
+        assertEquals("/api/v1/incidents/123/activity/page", response.getBody().path());
+        assertEquals("req-400", response.getBody().requestId());
+    }
 }
