@@ -9,3 +9,6 @@
 
 - API error responses use stable, client-safe messages for unexpected failures; exception details and secrets must remain in server-side diagnostics, not response bodies.
 - Invalid query-parameter types and enum values are treated as client errors (HTTP 400), not server failures.
+
+- Invalid typed query/path parameters (including malformed UUIDs and unknown enum values) must return HTTP 400 with a stable, client-safe message; never serialize exception messages or stack traces into the response.
+- Error responses should preserve the request correlation ID when one was assigned so operators can find server-side diagnostics without exposing them to callers.
