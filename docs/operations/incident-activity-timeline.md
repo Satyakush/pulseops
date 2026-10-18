@@ -36,3 +36,12 @@ The paginated activity endpoint uses the standard `ApiError` response envelope:
 - `200 OK` with an empty `items` array: the incident exists, but no activity entries match the requested filter/page.
 
 Invalid query values are client errors. They must not be reported as internal server errors, and responses must not expose exception details or stack traces.
+
+
+## Troubleshooting pagination
+
+- Use page index `0` for the first page; negative page indexes are invalid.
+- Keep page size between `1` and `100` to bound response and database work.
+- An unsupported `action` filter is a malformed request and should return HTTP 400, not HTTP 500.
+- An empty page for a valid incident and filter is a successful query; inspect `totalElements` before assuming data was lost.
+- For a missing incident, verify the UUID and environment because the API returns HTTP 404.
