@@ -37,3 +37,11 @@ Status changes follow an explicit lifecycle rather than accepting any enum value
 | `RESOLVED` | `INVESTIGATING` | Reopening requires an explicit return to investigation. |
 
 Repeated status updates and all transitions not listed above are rejected with HTTP `409 Conflict`. A rejected transition does not save an incident, write an activity entry, or publish a lifecycle event. A successful transition persists the new status and its `STATUS_CHANGED` activity entry together under the transactional service boundary.
+
+
+
+## Pagination error responses
+- `400 Bad Request`: negative page, size outside 1–100, or unsupported action filter.
+- `404 Not Found`: incident identifier does not resolve.
+- `200 OK` with empty items: incident exists but no entries match the filter/page.
+- Invalid query values must not become HTTP 500 responses; error payloads must not expose exception details.
