@@ -47,4 +47,39 @@ class IncidentActivityServiceTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> service.record(UUID.randomUUID(), null, "created"));
     }
+    @Test
+    void fallsBackToSystemActorWhenProviderReturnsNullOrBlank() {
+        IncidentActivityService nullActorService = new IncidentActivityService(repository, () -> null);
+        IncidentActivityService blankActorService = new IncidentActivityService(repository, () -> "   ");
+
+        assertThat(nullActorService.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "Created").actor())
+                .isEqualTo("system");
+        assertThat(blankActorService.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "Created").actor())
+                .isEqualTo("system");
+    }
+
+    @Test
+    void truncatesActorNamesToStorageLimit() {
+        IncidentActivityService longActorService = new IncidentActivityService(repository, () -> "a".repeat(150));
+
+        IncidentActivity saved = longActorService.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "Created");
+
+        assertThat(saved.actor()).hasSize(120).isEqualTo("a".repeat(120));
+    }
+
+    @Test
+    void acceptsSummaryAtMaximumLength() {
+        IncidentActivity saved = service.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "x".repeat(500));
+
+        assertThat(saved.summary()).hasSize(500);
+    }
+
+    @Test
+    void rejectsInvalidPaginationBounds() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), -1, 20));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), 0, 101));
+    }
+
 }
