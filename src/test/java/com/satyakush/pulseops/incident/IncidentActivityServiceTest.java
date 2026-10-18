@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class IncidentActivityServiceTest {
     private final InMemoryIncidentActivityRepository repository = new InMemoryIncidentActivityRepository();
@@ -76,10 +77,12 @@ class IncidentActivityServiceTest {
 
     @Test
     void rejectsInvalidPaginationBounds() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), -1, 20));
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), 0, 101));
+        assertThatThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), -1, 20))
+                .isInstanceOf(InvalidIncidentPageRequestException.class)
+                .hasMessage("page must be zero or greater");
+        assertThatThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), 0, 101))
+                .isInstanceOf(InvalidIncidentPageRequestException.class)
+                .hasMessage("size must be between 1 and 100");
     }
 
 }
