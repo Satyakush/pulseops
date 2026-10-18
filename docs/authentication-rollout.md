@@ -11,3 +11,6 @@
 - [ ] Keep health probes public while protecting operational endpoints.
 - [ ] Verify malformed query parameters and enum filters return HTTP 400 with a safe error envelope.
 - [ ] Verify unexpected exceptions return generic client messages without leaking exception text or secrets.
+- [ ] Confirm malformed UUID path parameters return HTTP 400 and do not leak conversion exceptions.
+- [ ] Confirm unsupported enum filters return HTTP 400 rather than HTTP 500.
+- [ ] Confirm validation errors include the request ID when available and never include stack traces or secrets.
