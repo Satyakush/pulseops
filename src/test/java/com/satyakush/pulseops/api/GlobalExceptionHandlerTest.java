@@ -84,6 +84,20 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void requestIdFilterAcceptsTheMaximumSupportedSafeHeaderLength() throws Exception {
+        RequestIdFilter filter = new RequestIdFilter();
+        String suppliedId = "x".repeat(128);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, suppliedId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, (req, res) -> { });
+
+        assertEquals(suppliedId, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        assertEquals(suppliedId, response.getHeader(RequestIdFilter.HEADER));
+    }
+
+    @Test
     void requestIdFilterGeneratesUuidWhenHeaderIsMissingOrBlank() throws Exception {
         RequestIdFilter filter = new RequestIdFilter();
 
