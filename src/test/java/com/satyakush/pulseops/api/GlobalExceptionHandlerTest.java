@@ -77,7 +77,10 @@ class GlobalExceptionHandlerTest {
         request.addHeader(RequestIdFilter.HEADER, "trace-client-123");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        filter.doFilterInternal(request, response, (req, res) -> { });
+        filter.doFilterInternal(request, response, (req, res) -> {
+            assertEquals("trace-client-123", req.getAttribute(RequestIdFilter.ATTRIBUTE));
+            assertEquals("trace-client-123", ((MockHttpServletResponse) res).getHeader(RequestIdFilter.HEADER));
+        });
 
         assertEquals("trace-client-123", request.getAttribute(RequestIdFilter.ATTRIBUTE));
         assertEquals("trace-client-123", response.getHeader(RequestIdFilter.HEADER));
