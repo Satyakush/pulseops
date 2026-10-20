@@ -22,7 +22,8 @@ public class RequestIdFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         String requestId = request.getHeader(HEADER);
-        if (requestId == null || requestId.isBlank()) {
+        // Treat the inbound ID as untrusted input: keep it bounded and header/log safe.
+        if (requestId == null || !requestId.matches("[A-Za-z0-9._:-]{1,128}")) {
             requestId = UUID.randomUUID().toString();
         }
 
