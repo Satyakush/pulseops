@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTest {
     void requestIdFilterGeneratesUuidWhenHeaderIsMissingOrBlank() throws Exception {
         RequestIdFilter filter = new RequestIdFilter();
 
-        for (String suppliedId : new String[] { null, "   " }) {
+        for (String suppliedId : new String[] { null, "   ", "bad id", "bad\\nheader", "x".repeat(129) }) {
             MockHttpServletRequest request = new MockHttpServletRequest();
             if (suppliedId != null) {
                 request.addHeader(RequestIdFilter.HEADER, suppliedId);
