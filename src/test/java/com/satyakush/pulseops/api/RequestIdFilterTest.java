@@ -56,4 +56,47 @@ class RequestIdFilterTest {
         org.junit.jupiter.api.Assertions.assertNotNull(response.getHeader(RequestIdFilter.HEADER));
         org.junit.jupiter.api.Assertions.assertFalse(response.getHeader(RequestIdFilter.HEADER).isBlank());
     }
+    @Test
+    void replacesRequestIdContainingWhitespaceOrUnsupportedCharacters() throws Exception {
+        for (String invalid : java.util.List.of("has space", "line\\nbreak", "bad/value", "tab\\tvalue")) {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.addHeader(RequestIdFilter.HEADER, invalid);
+            MockHttpServletResponse response = new MockHttpServletResponse();
+
+            filter.doFilter(request, response, mock(FilterChain.class));
+
+            String resolved = response.getHeader(RequestIdFilter.HEADER);
+            assertNotNull(resolved);
+            org.junit.jupiter.api.Assertions.assertNotEquals(invalid, resolved);
+            assertEquals(resolved, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        }
+    }
+
+    @Test
+    void replacesRequestIdLongerThan128Characters() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "a".repeat(129));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        String resolved = response.getHeader(RequestIdFilter.HEADER);
+        assertNotNull(resolved);
+        org.junit.jupiter.api.Assertions.assertNotEquals("a".repeat(129), resolved);
+        assertEquals(resolved, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
+    @Test
+    void preservesSafeRequestIdAtMaximumLength() throws Exception {
+        String valid = "a".repeat(128);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, valid);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        assertEquals(valid, response.getHeader(RequestIdFilter.HEADER));
+        assertEquals(valid, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
 }
