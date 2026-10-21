@@ -99,4 +99,16 @@ class RequestIdFilterTest {
         assertEquals(valid, request.getAttribute(RequestIdFilter.ATTRIBUTE));
     }
 
+    @Test
+    void continuesFilterChainAfterResolvingRequestId() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "ops-check-42");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        org.mockito.Mockito.verify(chain).doFilter(request, response);
+    }
+
 }
