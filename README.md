@@ -123,3 +123,9 @@ PulseOps includes an opt-in Redis cache layer for high-frequency service and inc
 ## CI
 
 GitHub Actions runs `./mvnw --batch-mode --no-transfer-progress verify` on pushes to `main` and pull requests targeting `main`. A green run applies only to the exact commit SHA shown on the workflow run; after merging, check the new `main` run as well.
+
+## Request correlation IDs
+
+Every request receives an `X-Request-Id` response header. A caller-provided value is preserved only when it contains 1–128 ASCII letters, digits, periods, underscores, colons, or hyphens. Missing or invalid values are replaced with a generated UUID. The resolved value is also stored in request context so API error responses can include it for support diagnostics.
+
+Do not use request IDs as authentication credentials or include secrets or personal information in them. When reporting a server error, share the request ID and endpoint rather than stack traces or tokens.
