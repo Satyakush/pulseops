@@ -3,10 +3,12 @@ package com.satyakush.pulseops.api;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 
 class GlobalExceptionHandlerTest {
@@ -67,5 +69,53 @@ class GlobalExceptionHandlerTest {
         assertEquals("Invalid value for parameter 'action'", response.getBody().message());
         assertEquals("/api/v1/incidents/123/activity/page", response.getBody().path());
         assertEquals("req-400", response.getBody().requestId());
+    }
+    @Test
+    void requestIdFilterPreservesClientSuppliedCorrelationId() throws Exception {
+        RequestIdFilter filter = new RequestIdFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "trace-client-123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, (req, res) -> {
+            assertEquals("trace-client-123", req.getAttribute(RequestIdFilter.ATTRIBUTE));
+            assertEquals("trace-client-123", ((MockHttpServletResponse) res).getHeader(RequestIdFilter.HEADER));
+        });
+
+        assertEquals("trace-client-123", request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        assertEquals("trace-client-123", response.getHeader(RequestIdFilter.HEADER));
+    }
+
+    @Test
+    void requestIdFilterAcceptsTheMaximumSupportedSafeHeaderLength() throws Exception {
+        RequestIdFilter filter = new RequestIdFilter();
+        String suppliedId = "x".repeat(128);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, suppliedId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, (req, res) -> { });
+
+        assertEquals(suppliedId, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        assertEquals(suppliedId, response.getHeader(RequestIdFilter.HEADER));
+    }
+
+    @Test
+    void requestIdFilterGeneratesUuidWhenHeaderIsMissingOrBlank() throws Exception {
+        RequestIdFilter filter = new RequestIdFilter();
+
+        for (String suppliedId : new String[] { null, "   ", "bad id", "bad\nheader", "x".repeat(129) }) {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            if (suppliedId != null) {
+                request.addHeader(RequestIdFilter.HEADER, suppliedId);
+            }
+            MockHttpServletResponse response = new MockHttpServletResponse();
+
+            filter.doFilterInternal(request, response, (req, res) -> { });
+
+            String generatedId = request.getAttribute(RequestIdFilter.ATTRIBUTE).toString();
+            assertDoesNotThrow(() -> UUID.fromString(generatedId));
+            assertEquals(generatedId, response.getHeader(RequestIdFilter.HEADER));
+        }
     }
 }
