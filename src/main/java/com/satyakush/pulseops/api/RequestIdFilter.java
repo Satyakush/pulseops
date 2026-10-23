@@ -24,8 +24,13 @@ public class RequestIdFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String requestId = request.getHeader(HEADER);
-        if (requestId == null || requestId.length() > MAX_REQUEST_ID_LENGTH
+        java.util.Enumeration<String> suppliedIds = request.getHeaders(HEADER);
+        String requestId = suppliedIds != null && suppliedIds.hasMoreElements()
+                ? suppliedIds.nextElement()
+                : null;
+        boolean duplicateRequestIds = suppliedIds != null && suppliedIds.hasMoreElements();
+
+        if (duplicateRequestIds || requestId == null || requestId.length() > MAX_REQUEST_ID_LENGTH
                 || !SAFE_REQUEST_ID.matcher(requestId).matches()) {
             requestId = UUID.randomUUID().toString();
         }
