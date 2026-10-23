@@ -2,7 +2,7 @@
 
 ## Contract
 
-PulseOps returns an `X-Request-Id` response header. A caller-supplied ID is accepted only when it is 1–128 ASCII characters from this allowlist: letters, digits, dot, underscore, colon, and hyphen. Missing or invalid values should be replaced by a generated UUID. The same resolved value should be visible in request context and safe API error responses.
+PulseOps returns an `X-Request-Id` response header. A caller-supplied ID is accepted only when it is 1–128 ASCII characters from this allowlist: letters, digits, dot, underscore, colon, and hyphen. Missing or invalid values should be replaced by a generated UUID. If multiple `X-Request-Id` header values are supplied, discard them all and generate a UUID so proxies and application code cannot disagree about which ID identifies the request. The same resolved value should be visible in request context and safe API error responses.
 
 ## Triage
 
@@ -24,5 +24,6 @@ PulseOps returns an `X-Request-Id` response header. A caller-supplied ID is acce
 - [ ] Missing ID results in a generated response ID.
 - [ ] Valid ID is preserved exactly.
 - [ ] Empty, whitespace, control-character, unsupported-character, and overlong IDs fall back safely.
+- [ ] Duplicate `X-Request-Id` header values are replaced with one generated UUID.
 - [ ] Filter chain continues and downstream code can read the same ID.
 - [ ] API errors include the resolved ID when the error envelope supports it.
