@@ -23,4 +23,18 @@ class HealthControllerTest {
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("pulseops"));
     }
+ 
+    @Test
+    void healthIncludesRequestIdFromRequestContext() throws Exception {
+        mockMvc.perform(get("/api/v1/health").requestAttr(RequestIdFilter.ATTRIBUTE, "health-check-42"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requestId").value("health-check-42"));
+    }
+
+    @Test
+    void healthIncludesTimestamp() throws Exception {
+        mockMvc.perform(get("/api/v1/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
+    }
 }
