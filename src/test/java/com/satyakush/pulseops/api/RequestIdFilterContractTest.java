@@ -96,6 +96,23 @@ class RequestIdFilterContractTest {
     }
 
     @Test
+    void replacesDuplicateRequestIdHeadersToAvoidAmbiguousCorrelation() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "client-one");
+        request.addHeader(RequestIdFilter.HEADER, "client-two");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        String resolved = response.getHeader(RequestIdFilter.HEADER);
+        assertNotNull(resolved);
+        assertNotEquals("client-one", resolved);
+        assertNotEquals("client-two", resolved);
+        assertEquals(resolved, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        assertDoesNotThrow(() -> UUID.fromString(resolved));
+    }
+
+    @Test
     void invokesDownstreamChainExactlyOnce() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
