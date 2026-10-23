@@ -7,6 +7,19 @@
 - **Metadata:** The response includes a timestamp and the resolved request correlation ID when the request passed through the request ID filter.
 - **Scope:** This endpoint is a lightweight application liveness signal. Do not interpret `UP` as proof that every downstream dependency is reachable.
 
+## Example response
+
+```json
+{
+  "status": "UP",
+  "service": "pulseops",
+  "timestamp": "2026-10-24T00:00:00Z",
+  "requestId": "health-check-42"
+}
+```
+
+The timestamp above is illustrative, not a fixed value.
+
 ## Triage
 
 1. Call `GET /api/v1/health` and confirm the HTTP status and `status` field.
