@@ -14,6 +14,52 @@ class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
+    void invalidCredentialsUseGenericUnauthorizedResponse() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/auth/login");
+        request.setAttribute(RequestIdFilter.ATTRIBUTE, "auth-401");
+
+        ResponseEntity<ApiError> response = handler.handleInvalidCredentials(
+                new com.satyakush.pulseops.auth.InvalidCredentialsException(), request);
+
+        assertEquals(401, response.getStatusCode().value());
+        assertEquals("Invalid username or password", response.getBody().message());
+        assertEquals("auth-401", response.getBody().requestId());
+    }
+
+    @Test
+    void unreadableRequestBodyReturnsSafeBadRequestResponse() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/incidents");
+        request.setAttribute(RequestIdFilter.ATTRIBUTE, "body-400");
+
+        ResponseEntity<ApiError> response = handler.handleUnreadableRequest(
+                new org.springframework.http.converter.HttpMessageNotReadableException(
+                        "sensitive parser details"), request);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("Request body contains invalid or unreadable values", response.getBody().message());
+        assertEquals("body-400", response.getBody().requestId());
+        org.junit.jupiter.api.Assertions.assertFalse(response.getBody().message().contains("sensitive"));
+    }
+
+    @Test
+    void invalidIncidentTransitionReturnsConflictWithCorrelationId() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/incidents/42/status");
+        request.setAttribute(RequestIdFilter.ATTRIBUTE, "incident-409");
+
+        ResponseEntity<ApiError> response = handler.handleInvalidIncidentStatusTransition(
+                new com.satyakush.pulseops.incident.InvalidIncidentStatusTransitionException(
+                        com.satyakush.pulseops.incident.IncidentStatus.OPEN,
+                        com.satyakush.pulseops.incident.IncidentStatus.RESOLVED), request);
+
+        assertEquals(409, response.getStatusCode().value());
+        assertEquals("incident-409", response.getBody().requestId());
+        assertEquals("/api/v1/incidents/42/status", response.getBody().path());
+    }
+
+    @Test
     void unexpectedErrorsPreserveRequestCorrelationId() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/v1/services");
