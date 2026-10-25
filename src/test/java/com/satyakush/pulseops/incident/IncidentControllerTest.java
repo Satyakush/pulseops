@@ -265,6 +265,13 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$.totalPages", is(2)));
     }
 
+    @Test void paginatedIncidentSearchRejectsNegativePage() throws Exception {
+        mockMvc.perform(get("/api/v1/incidents/page").param("page", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("page must be zero or greater")));
+    }
+
     @Test void paginatedIncidentSearchRejectsOversizedPages() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/page").param("size", "101"))
                 .andExpect(status().isBadRequest())
