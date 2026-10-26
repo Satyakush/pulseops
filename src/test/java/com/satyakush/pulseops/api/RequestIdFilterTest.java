@@ -111,4 +111,20 @@ class RequestIdFilterTest {
         org.mockito.Mockito.verify(chain).doFilter(request, response);
     }
 
+    @Test
+    void replacesDuplicateRequestIdHeaders() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "first-id");
+        request.addHeader(RequestIdFilter.HEADER, "second-id");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        String resolved = response.getHeader(RequestIdFilter.HEADER);
+        assertNotNull(resolved);
+        org.junit.jupiter.api.Assertions.assertNotEquals("first-id", resolved);
+        org.junit.jupiter.api.Assertions.assertNotEquals("second-id", resolved);
+        assertEquals(resolved, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
 }
