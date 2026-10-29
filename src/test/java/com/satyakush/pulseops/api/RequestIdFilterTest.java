@@ -58,7 +58,7 @@ class RequestIdFilterTest {
     }
     @Test
     void replacesRequestIdContainingWhitespaceOrUnsupportedCharacters() throws Exception {
-        for (String invalid : java.util.List.of("has space", "line\\nbreak", "bad/value", "tab\\tvalue")) {
+        for (String invalid : java.util.List.of("has space", "line\nbreak", "bad/value", "tab\tvalue") {
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.addHeader(RequestIdFilter.HEADER, invalid);
             MockHttpServletResponse response = new MockHttpServletResponse();
