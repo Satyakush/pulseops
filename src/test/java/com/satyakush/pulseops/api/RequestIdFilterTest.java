@@ -159,4 +159,19 @@ class RequestIdFilterTest {
     }
 
 
+
+    @Test
+    void preservesEverySupportedRequestIdCharacter() throws Exception {
+        String valid = "AZaz09._:-";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, valid);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        assertEquals(valid, response.getHeader(RequestIdFilter.HEADER));
+        assertEquals(valid, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
+
 }
