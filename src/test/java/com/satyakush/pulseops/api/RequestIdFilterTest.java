@@ -1,6 +1,8 @@
 package com.satyakush.pulseops.api;
 
 import jakarta.servlet.FilterChain;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -58,7 +60,7 @@ class RequestIdFilterTest {
     }
     @Test
     void replacesRequestIdContainingWhitespaceOrUnsupportedCharacters() throws Exception {
-        for (String invalid : java.util.List.of("has space", "line\nbreak", "bad/value", "tab\tvalue")) {
+        for (String invalid : List.of("has space", "line\nbreak", "bad/value", "tab\tvalue")) {
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.addHeader(RequestIdFilter.HEADER, invalid);
             MockHttpServletResponse response = new MockHttpServletResponse();
@@ -171,6 +173,39 @@ class RequestIdFilterTest {
 
         assertEquals(valid, response.getHeader(RequestIdFilter.HEADER));
         assertEquals(valid, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
+
+
+    @Test
+    void generatesCanonicalUuidWhenClientRequestIdIsInvalid() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(RequestIdFilter.HEADER, "invalid/request/id");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        String resolved = response.getHeader(RequestIdFilter.HEADER);
+        assertNotNull(resolved);
+        assertEquals(UUID.fromString(resolved).toString(), resolved);
+        assertEquals(resolved, request.getAttribute(RequestIdFilter.ATTRIBUTE));
+    }
+
+    @Test
+    void generatesDifferentIdsForSeparateRequestsWithoutClientIds() throws Exception {
+        MockHttpServletRequest firstRequest = new MockHttpServletRequest();
+        MockHttpServletResponse firstResponse = new MockHttpServletResponse();
+        MockHttpServletRequest secondRequest = new MockHttpServletRequest();
+        MockHttpServletResponse secondResponse = new MockHttpServletResponse();
+
+        filter.doFilter(firstRequest, firstResponse, mock(FilterChain.class));
+        filter.doFilter(secondRequest, secondResponse, mock(FilterChain.class));
+
+        assertNotNull(firstResponse.getHeader(RequestIdFilter.HEADER));
+        assertNotNull(secondResponse.getHeader(RequestIdFilter.HEADER));
+        org.junit.jupiter.api.Assertions.assertNotEquals(
+                firstResponse.getHeader(RequestIdFilter.HEADER),
+                secondResponse.getHeader(RequestIdFilter.HEADER));
     }
 
 
