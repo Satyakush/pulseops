@@ -286,4 +286,20 @@ class IncidentControllerTest {
                     .andExpect(jsonPath("$.message", is("size must be between 1 and 100")));
         }
     }
+
+    @Test void paginatedIncidentSearchRejectsNonPositivePageSizes() throws Exception {
+        for (String size : java.util.List.of("0", "-1")) {
+            mockMvc.perform(get("/api/v1/incidents/page").param("size", size))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status", is(400)))
+                    .andExpect(jsonPath("$.message", is("size must be between 1 and 100")));
+        }
+    }
+
+    @Test void paginatedIncidentSearchAcceptsMaximumPageSize() throws Exception {
+        mockMvc.perform(get("/api/v1/incidents/page").param("page", "0").param("size", "100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page", is(0)))
+                .andExpect(jsonPath("$.size", is(100)));
+    }
 }
