@@ -143,6 +143,42 @@ class IncidentControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test void paginatedActivityTimelineForUnknownIncidentReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", UUID.randomUUID()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)));
+    }
+
+    @Test void paginatedActivityEndpointReturnsEmptyPageBeyondLastPage() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id)
+                        .param("page", "1").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()", is(0)))
+                .andExpect(jsonPath("$.page", is(1)))
+                .andExpect(jsonPath("$.size", is(1)))
+                .andExpect(jsonPath("$.totalElements", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)));
+    }
+
+    @Test void paginatedActivityEndpointRejectsZeroPageSize() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id).param("size", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("size must be between 1 and 100")));
+    }
+
     @Test void activityTimelineForUnknownIncidentReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/v1/incidents/{id}/activity", UUID.randomUUID()))
                 .andExpect(status().isNotFound())
