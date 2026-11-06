@@ -85,4 +85,31 @@ class IncidentActivityServiceTest {
         assertThat(saved.summary()).hasSize(500).isEqualTo(summary);
     }
 
+    @Test
+    void rejectsNegativeActivityPage() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), -1, 20))
+                .withMessage("page must be zero or greater");
+    }
+
+    @Test
+    void rejectsActivityPageSizesOutsideSupportedRange() {
+        UUID incidentId = UUID.randomUUID();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.findPageForIncident(incidentId, 0, 0))
+                .withMessage("size must be between 1 and 100");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.findPageForIncident(incidentId, 0, 101))
+                .withMessage("size must be between 1 and 100");
+    }
+
+    @Test
+    void allowsMaximumActivityPageSize() {
+        IncidentActivityPage page = service.findPageForIncident(UUID.randomUUID(), 0, 100);
+
+        assertThat(page.size()).isEqualTo(100);
+        assertThat(page.items()).isEmpty();
+    }
+
 }
