@@ -47,4 +47,42 @@ class IncidentActivityServiceTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> service.record(UUID.randomUUID(), null, "created"));
     }
+    @Test
+    void fallsBackToSystemWhenActorIsMissingOrBlank() {
+        IncidentActivityService missingActorService =
+                new IncidentActivityService(repository, () -> null);
+        IncidentActivityService blankActorService =
+                new IncidentActivityService(repository, () -> "   ");
+
+        IncidentActivity missingActor = missingActorService.record(
+                UUID.randomUUID(), IncidentActivityAction.CREATED, "created");
+        IncidentActivity blankActor = blankActorService.record(
+                UUID.randomUUID(), IncidentActivityAction.CREATED, "created");
+
+        assertThat(missingActor.actor()).isEqualTo("system");
+        assertThat(blankActor.actor()).isEqualTo("system");
+    }
+
+    @Test
+    void truncatesActorToStorageLimit() {
+        String longActor = "a".repeat(121);
+        IncidentActivityService longActorService =
+                new IncidentActivityService(repository, () -> longActor);
+
+        IncidentActivity saved = longActorService.record(
+                UUID.randomUUID(), IncidentActivityAction.CREATED, "created");
+
+        assertThat(saved.actor()).hasSize(120).isEqualTo("a".repeat(120));
+    }
+
+    @Test
+    void acceptsActivitySummaryAtMaximumStorageLength() {
+        String summary = "x".repeat(500);
+
+        IncidentActivity saved = service.record(
+                UUID.randomUUID(), IncidentActivityAction.CREATED, summary);
+
+        assertThat(saved.summary()).hasSize(500).isEqualTo(summary);
+    }
+
 }
