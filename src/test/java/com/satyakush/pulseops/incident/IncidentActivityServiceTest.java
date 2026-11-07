@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class IncidentActivityServiceTest {
     private final InMemoryIncidentActivityRepository repository = new InMemoryIncidentActivityRepository();
@@ -87,7 +87,7 @@ class IncidentActivityServiceTest {
 
     @Test
     void rejectsNegativeActivityPage() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(InvalidIncidentPageRequestException.class)
                 .isThrownBy(() -> service.findPageForIncident(UUID.randomUUID(), -1, 20))
                 .withMessage("page must be zero or greater");
     }
@@ -96,10 +96,10 @@ class IncidentActivityServiceTest {
     void rejectsActivityPageSizesOutsideSupportedRange() {
         UUID incidentId = UUID.randomUUID();
 
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(InvalidIncidentPageRequestException.class)
                 .isThrownBy(() -> service.findPageForIncident(incidentId, 0, 0))
                 .withMessage("size must be between 1 and 100");
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(InvalidIncidentPageRequestException.class)
                 .isThrownBy(() -> service.findPageForIncident(incidentId, 0, 101))
                 .withMessage("size must be between 1 and 100");
     }
