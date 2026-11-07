@@ -28,23 +28,23 @@ class IncidentActivityServiceTest {
 
     @Test
     void rejectsBlankActivitySummary() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "  "))
                 .withMessage("activity summary must not be blank");
     }
 
     @Test
     void rejectsActivitySummaryLongerThanStorageContract() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.record(UUID.randomUUID(), IncidentActivityAction.CREATED, "x".repeat(501)))
                 .withMessage("activity summary must be at most 500 characters");
     }
 
     @Test
     void rejectsMissingIncidentAndAction() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.record(null, IncidentActivityAction.CREATED, "created"));
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> service.record(UUID.randomUUID(), null, "created"));
     }
     @Test
