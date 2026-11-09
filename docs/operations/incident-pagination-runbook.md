@@ -37,3 +37,27 @@ A successful response includes `items`, `page`, `size`, `totalElements`, and `to
 - [ ] Page sizes outside 1–100 are rejected with HTTP 400.
 - [ ] Valid pagination returns consistent page metadata.
 - [ ] Filters are applied alongside pagination.
+
+## Incident activity timeline pagination
+
+Use `GET /api/v1/incidents/{incidentId}/activity/page` to retrieve a bounded page of an incident's audit timeline.
+
+Supported query parameters:
+
+- `page`: zero-based page index; defaults to `0`.
+- `size`: page size; defaults to `20` and must be between `1` and `100`.
+- `action`: optional activity action filter when supported by the endpoint.
+
+The response contains `items`, `page`, `size`, `totalElements`, and `totalPages`. An empty `items` array on a page beyond the last page is valid; inspect `totalElements` before treating it as an error.
+
+Expected behavior:
+
+| Scenario | Expected result |
+|---|---|
+| Unknown incident ID | HTTP 404 |
+| Negative page index | HTTP 400 |
+| Page size below 1 or above 100 | HTTP 400 |
+| Valid page beyond last page | HTTP 200 with an empty `items` array |
+| Valid request | HTTP 200 with pagination metadata |
+
+For a support investigation, capture the incident ID, page, size, response status, and `X-Request-Id` header. Do not include authentication tokens in logs or support tickets.
