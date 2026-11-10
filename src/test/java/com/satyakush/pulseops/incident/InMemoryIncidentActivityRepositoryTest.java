@@ -64,6 +64,28 @@ class InMemoryIncidentActivityRepositoryTest {
         assertThat(secondPage.page()).isEqualTo(1);
     }
 
+    @Test
+    void breaksTimestampTiesByDescendingIdForStablePagination() {
+        UUID incidentId = UUID.randomUUID();
+        OffsetDateTime sameTime = OffsetDateTime.parse("2026-11-10T10:00:00Z");
+        IncidentActivity lowerId = new IncidentActivity(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), incidentId,
+                IncidentActivityAction.CREATED, "operator", "lower id", sameTime);
+        IncidentActivity higherId = new IncidentActivity(
+                UUID.fromString("00000000-0000-0000-0000-000000000002"), incidentId,
+                IncidentActivityAction.STATUS_CHANGED, "operator", "higher id", sameTime);
+        repository.save(lowerId);
+        repository.save(higherId);
+
+        IncidentActivityPage first = repository.findPageByIncidentId(incidentId, 0, 1);
+        IncidentActivityPage second = repository.findPageByIncidentId(incidentId, 1, 1);
+
+        assertThat(first.items()).containsExactly(higherId);
+        assertThat(second.items()).containsExactly(lowerId);
+        assertThat(first.totalElements()).isEqualTo(2);
+    }
+
+    private void unusedPlaceholder() {}
     private IncidentActivity activity(UUID incidentId, String timestamp) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", "Incident opened", OffsetDateTime.parse(timestamp));
