@@ -43,6 +43,20 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$[0].summary", is("Incident created")));
     }
 
+    @Test void paginatedActivityEndpointUsesDefaultPageAndSize() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page", is(0)))
+                .andExpect(jsonPath("$.size", is(20)))
+                .andExpect(jsonPath("$.totalElements", is(1)));
+    }
+
     @Test void paginatedActivityEndpointReturnsPageMetadata() throws Exception {
         String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
@@ -315,15 +329,6 @@ class IncidentControllerTest {
     }
 
     @Test void paginatedIncidentSearchRejectsZeroAndNegativePageSizes() throws Exception {
-        for (String size : java.util.List.of("0", "-1")) {
-            mockMvc.perform(get("/api/v1/incidents/page").param("size", size))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.status", is(400)))
-                    .andExpect(jsonPath("$.message", is("size must be between 1 and 100")));
-        }
-    }
-
-    @Test void paginatedIncidentSearchRejectsNonPositivePageSizes() throws Exception {
         for (String size : java.util.List.of("0", "-1")) {
             mockMvc.perform(get("/api/v1/incidents/page").param("size", size))
                     .andExpect(status().isBadRequest())
