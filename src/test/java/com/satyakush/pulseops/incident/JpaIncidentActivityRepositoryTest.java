@@ -114,6 +114,31 @@ class JpaIncidentActivityRepositoryTest {
         assertThat(first.totalElements()).isEqualTo(2);
     }
 
+    @Test
+    void filteredPagesReportMetadataForTheFilteredResultSet() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
+                "operator", "created", OffsetDateTime.parse("2026-10-14T09:00:00Z")));
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.STATUS_CHANGED,
+                "operator", "investigating", OffsetDateTime.parse("2026-10-14T10:00:00Z")));
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.STATUS_CHANGED,
+                "operator", "resolved", OffsetDateTime.parse("2026-10-14T11:00:00Z")));
+        repository.save(new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.STATUS_CHANGED,
+                "operator", "reopened", OffsetDateTime.parse("2026-10-14T12:00:00Z")));
+        entityRepository.flush();
+        entityManager.clear();
+
+        IncidentActivityPage result = repository.findPageByIncidentId(
+                incidentId, IncidentActivityAction.STATUS_CHANGED, 1, 2);
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).summary()).isEqualTo("investigating");
+        assertThat(result.page()).isEqualTo(1);
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.totalElements()).isEqualTo(3);
+        assertThat(result.totalPages()).isEqualTo(2);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp, String summary) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", summary, OffsetDateTime.parse(timestamp));
