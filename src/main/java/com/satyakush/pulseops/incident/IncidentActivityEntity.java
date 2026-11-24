@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "incident_activity", indexes = {
         @Index(name = "idx_incident_activity_incident_time_id", columnList = "incident_id, occurred_at, id")
+        ,@Index(name = "idx_incident_activity_incident_action_time_id", columnList = "incident_id, action, occurred_at, id")
 })
 public class IncidentActivityEntity {
     @Id
