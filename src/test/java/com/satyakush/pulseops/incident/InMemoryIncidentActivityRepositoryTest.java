@@ -85,7 +85,20 @@ class InMemoryIncidentActivityRepositoryTest {
         assertThat(first.totalElements()).isEqualTo(2);
     }
 
-    private void unusedPlaceholder() {}
+    @Test
+    void returnsEmptyPageBeyondLastResultWhilePreservingTotals() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(activity(incidentId, "2026-10-13T10:00:00Z"));
+
+        IncidentActivityPage result = repository.findPageByIncidentId(incidentId, 3, 2);
+
+        assertThat(result.items()).isEmpty();
+        assertThat(result.page()).isEqualTo(3);
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", "Incident opened", OffsetDateTime.parse(timestamp));
