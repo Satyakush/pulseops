@@ -139,6 +139,22 @@ class JpaIncidentActivityRepositoryTest {
         assertThat(result.totalPages()).isEqualTo(2);
     }
 
+    @Test
+    void returnsEmptyPageBeyondLastResultWhilePreservingTotals() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(activity(incidentId, "2026-10-14T10:00:00Z", "Only entry"));
+        entityRepository.flush();
+        entityManager.clear();
+
+        IncidentActivityPage result = repository.findPageByIncidentId(incidentId, 3, 2);
+
+        assertThat(result.items()).isEmpty();
+        assertThat(result.page()).isEqualTo(3);
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp, String summary) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", summary, OffsetDateTime.parse(timestamp));
