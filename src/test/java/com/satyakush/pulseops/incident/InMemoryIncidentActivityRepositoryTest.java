@@ -99,6 +99,21 @@ class InMemoryIncidentActivityRepositoryTest {
         assertThat(result.totalPages()).isEqualTo(1);
     }
 
+    @Test
+    void actionFilterWithNoMatchesReturnsEmptyPageAndZeroTotals() {
+        UUID incidentId = UUID.randomUUID();
+        repository.save(activity(incidentId, "2026-10-13T10:00:00Z"));
+
+        IncidentActivityPage result = repository.findPageByIncidentId(
+                incidentId, IncidentActivityAction.STATUS_CHANGED, 0, 10);
+
+        assertThat(result.items()).isEmpty();
+        assertThat(result.totalElements()).isZero();
+        assertThat(result.totalPages()).isZero();
+        assertThat(result.page()).isZero();
+        assertThat(result.size()).isEqualTo(10);
+    }
+
     private IncidentActivity activity(UUID incidentId, String timestamp) {
         return new IncidentActivity(UUID.randomUUID(), incidentId, IncidentActivityAction.CREATED,
                 "operator", "Incident opened", OffsetDateTime.parse(timestamp));
