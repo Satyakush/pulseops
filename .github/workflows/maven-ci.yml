@@ -8,7 +8,8 @@ on:
 
 concurrency:
   group: maven-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Keep active main-branch verification running when rapid commits arrive.
+  cancel-in-progress: false
 
 permissions:
   contents: read
