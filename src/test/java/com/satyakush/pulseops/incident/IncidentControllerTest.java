@@ -349,7 +349,7 @@ class IncidentControllerTest {
 
     @Test void filteredActivityPaginationReturnsMetadataForMatchingEventsOnly() throws Exception {
         String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
-                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .content("{\"serviceId\":\"00000000-0000-0000-0000-000000000001\",\"title\":\"API latency\",\"severity\":\"HIGH\"}"))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
                 .readTree(created).get("id").asText();
@@ -358,7 +358,7 @@ class IncidentControllerTest {
             mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(
                             "/api/v1/incidents/{id}/status", id)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("{\\"status\\":\\"" + nextStatus + "\\"}"))
+                    .content("{\"status\":\"" + nextStatus + "\"}"))
                     .andExpect(status().isOk());
         }
 
