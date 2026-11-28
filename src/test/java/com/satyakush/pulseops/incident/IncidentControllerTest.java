@@ -346,4 +346,31 @@ class IncidentControllerTest {
                 .andExpect(jsonPath("$.page", is(0)))
                 .andExpect(jsonPath("$.size", is(100)));
     }
+
+    @Test void filteredActivityPaginationReturnsMetadataForMatchingEventsOnly() throws Exception {
+        String created = mockMvc.perform(post("/api/v1/incidents").contentType(MediaType.APPLICATION_JSON)
+                .content("{\\"serviceId\\":\\"00000000-0000-0000-0000-000000000001\\",\\"title\\":\\"API latency\\",\\"severity\\":\\"HIGH\\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = com.fasterxml.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(created).get("id").asText();
+
+        for (String nextStatus : java.util.List.of("RESOLVED", "INVESTIGATING", "RESOLVED")) {
+            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(
+                            "/api/v1/incidents/{id}/status", id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\\"status\\":\\"" + nextStatus + "\\"}"))
+                    .andExpect(status().isOk());
+        }
+
+        mockMvc.perform(get("/api/v1/incidents/{id}/activity/page", id)
+                        .param("action", "STATUS_CHANGED").param("page", "1").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()", is(1)))
+                .andExpect(jsonPath("$.items[0].action", is("STATUS_CHANGED")))
+                .andExpect(jsonPath("$.page", is(1)))
+                .andExpect(jsonPath("$.size", is(2)))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalPages", is(2)));
+    }
+
 }
